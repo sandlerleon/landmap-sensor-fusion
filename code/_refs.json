@@ -1,0 +1,351 @@
+{
+ "laner2019": {
+  "doi": "10.1016/j.wasman.2019.07.007",
+  "authors": [
+   "Laner D",
+   "Esguerra JL",
+   "Krook J",
+   "Horttanainen M",
+   "Kriipsalu M",
+   "Rosendal RM",
+   "Stanisavljević N"
+  ],
+  "title": "Systematic assessment of critical factors for the economic performance of landfill mining in Europe: What drives the economy of landfill mining?",
+  "container": "Waste Management",
+  "year": 2019,
+  "volume": "95",
+  "issue": null,
+  "page": "674-686",
+  "type": "journal-article",
+  "publisher": "Elsevier BV",
+  "event": ""
+ },
+ "danthurebandara2015": {
+  "doi": "10.1016/j.wasman.2015.01.041",
+  "authors": [
+   "Danthurebandara M",
+   "Van Passel S",
+   "Vanderreydt I",
+   "Van Acker K"
+  ],
+  "title": "Assessment of environmental and economic feasibility of Enhanced Landfill Mining",
+  "container": "Waste Management",
+  "year": 2015,
+  "volume": "45",
+  "issue": null,
+  "page": "434-447",
+  "type": "journal-article",
+  "publisher": "Elsevier BV",
+  "event": ""
+ },
+ "jones2013": {
+  "doi": "10.1016/j.jclepro.2012.05.021",
+  "authors": [
+   "Jones PT",
+   "Geysen D",
+   "Tielemans Y",
+   "Van Passel S",
+   "Pontikes Y",
+   "Blanpain B",
+   "Quaghebeur M",
+   "Hoekstra N"
+  ],
+  "title": "Enhanced Landfill Mining in view of multiple resource recovery: a critical review",
+  "container": "Journal of Cleaner Production",
+  "year": 2013,
+  "volume": "55",
+  "issue": null,
+  "page": "45-55",
+  "type": "journal-article",
+  "publisher": "Elsevier BV",
+  "event": ""
+ },
+ "vollprecht2021": {
+  "doi": "10.3390/pr9020394",
+  "authors": [
+   "Vollprecht D",
+   "Machiels L",
+   "Jones PT"
+  ],
+  "title": "The EU Training Network for Resource Recovery through Enhanced Landfill Mining—A Review",
+  "container": "Processes",
+  "year": 2021,
+  "volume": "9",
+  "issue": "2",
+  "page": "394",
+  "type": "journal-article",
+  "publisher": "MDPI AG",
+  "event": ""
+ },
+ "yi2019": {
+  "doi": "10.1016/j.jenvman.2019.01.101",
+  "authors": [
+   "Yi S"
+  ],
+  "title": "Resource recovery potentials by landfill mining and reclamation in South Korea",
+  "container": "Journal of Environmental Management",
+  "year": 2019,
+  "volume": "242",
+  "issue": null,
+  "page": "178-185",
+  "type": "journal-article",
+  "publisher": "Elsevier BV",
+  "event": ""
+ },
+ "zhang2022": {
+  "doi": "10.1177/0734242x221074114",
+  "authors": [
+   "Zhang T",
+   "Zhang D",
+   "Zheng D",
+   "Guo X",
+   "Zhao W"
+  ],
+  "title": "Construction waste landfill volume estimation using ground penetrating radar",
+  "container": "Waste Management & Research: The Journal for a Sustainable Circular Economy",
+  "year": 2022,
+  "volume": "40",
+  "issue": "8",
+  "page": "1167-1175",
+  "type": "journal-article",
+  "publisher": "SAGE Publications",
+  "event": ""
+ },
+ "deidda2022": {
+  "doi": "10.1016/j.wasman.2022.03.007",
+  "authors": [
+   "Piero Deidda G",
+   "De Carlo L",
+   "Clementina Caputo M",
+   "Cassiani G"
+  ],
+  "title": "Frequency domain electromagnetic induction imaging: An effective method to see inside a capped landfill",
+  "container": "Waste Management",
+  "year": 2022,
+  "volume": "144",
+  "issue": null,
+  "page": "29-40",
+  "type": "journal-article",
+  "publisher": "Elsevier BV",
+  "event": ""
+ },
+ "dedonno2024": {
+  "doi": "10.1007/978-3-031-52633-6_1",
+  "authors": [
+   "De Donno G",
+   "Melegari D",
+   "Paoletti V",
+   "Piegari E"
+  ],
+  "title": "Electrical and Electromagnetic Prospecting for the Characterization of Municipal Waste Landfills: A Review",
+  "container": "Springer Water",
+  "year": 2024,
+  "volume": null,
+  "issue": null,
+  "page": "1-29",
+  "type": "book-chapter",
+  "publisher": "Springer Nature Switzerland",
+  "event": ""
+ },
+ "jansen1992": {
+  "doi": "10.1111/j.1745-6592.1992.tb00068.x",
+  "authors": [
+   "Jansen J",
+   "Haddad B",
+   "Fassbender W",
+   "Jurcek P"
+  ],
+  "title": "Frequency Domain Electromagnetic Induction Sounding Surveys for Landfill Site Characterization Studies",
+  "container": "Groundwater Monitoring & Remediation",
+  "year": 1992,
+  "volume": "12",
+  "issue": "4",
+  "page": "103-109",
+  "type": "journal-article",
+  "publisher": "Wiley",
+  "event": ""
+ },
+ "roberts2017": {
+  "doi": "10.1111/ecog.02881",
+  "authors": [
+   "Roberts DR",
+   "Bahn V",
+   "Ciuti S",
+   "Boyce MS",
+   "Elith J",
+   "Guillera‐Arroita G",
+   "Hauenstein S",
+   "Lahoz‐Monfort JJ",
+   "Schröder B",
+   "Thuiller W",
+   "Warton DI",
+   "Wintle BA",
+   "Hartig F",
+   "Dormann CF"
+  ],
+  "title": "Cross‐validation strategies for data with temporal, spatial, hierarchical, or phylogenetic structure",
+  "container": "Ecography",
+  "year": 2017,
+  "volume": "40",
+  "issue": "8",
+  "page": "913-929",
+  "type": "journal-article",
+  "publisher": "Wiley",
+  "event": ""
+ },
+ "ploton2020": {
+  "doi": "10.1038/s41467-020-18321-y",
+  "authors": [
+   "Ploton P",
+   "Mortier F",
+   "Réjou-Méchain M",
+   "Barbier N",
+   "Picard N",
+   "Rossi V",
+   "Dormann C",
+   "Cornu G",
+   "Viennois G",
+   "Bayol N",
+   "Lyapustin A",
+   "Gourlet-Fleury S",
+   "Pélissier R"
+  ],
+  "title": "Spatial validation reveals poor predictive performance of large-scale ecological mapping models",
+  "container": "Nature Communications",
+  "year": 2020,
+  "volume": "11",
+  "issue": "1",
+  "page": "4540",
+  "type": "journal-article",
+  "publisher": "Springer Science and Business Media LLC",
+  "event": ""
+ },
+ "hijmans2012": {
+  "doi": "10.1890/11-0826.1",
+  "authors": [
+   "Hijmans RJ"
+  ],
+  "title": "Cross‐validation of species distribution models: removing spatial sorting bias and calibration with a null model",
+  "container": "Ecology",
+  "year": 2012,
+  "volume": "93",
+  "issue": "3",
+  "page": "679-688",
+  "type": "journal-article",
+  "publisher": "Wiley",
+  "event": ""
+ },
+ "orynbaikyzy2022": {
+  "doi": "10.3390/rs14061493",
+  "authors": [
+   "Orynbaikyzy A",
+   "Gessner U",
+   "Conrad C"
+  ],
+  "title": "Spatial Transferability of Random Forest Models for Crop Type Classification Using Sentinel-1 and Sentinel-2",
+  "container": "Remote Sensing",
+  "year": 2022,
+  "volume": "14",
+  "issue": "6",
+  "page": "1493",
+  "type": "journal-article",
+  "publisher": "MDPI AG",
+  "event": ""
+ },
+ "breiman2001": {
+  "doi": "10.1023/a:1010933404324",
+  "authors": [
+   "Breiman L"
+  ],
+  "title": "Random Forests",
+  "container": "Machine Learning",
+  "year": 2001,
+  "volume": "45",
+  "issue": "1",
+  "page": "5-32",
+  "type": "journal-article",
+  "publisher": "Springer Science and Business Media LLC",
+  "event": ""
+ },
+ "chen2016": {
+  "doi": "10.1145/2939672.2939785",
+  "authors": [
+   "Chen T",
+   "Guestrin C"
+  ],
+  "title": "XGBoost",
+  "container": "Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining",
+  "year": 2016,
+  "volume": null,
+  "issue": null,
+  "page": "785-794",
+  "type": "proceedings-article",
+  "publisher": "ACM",
+  "event": "KDD '16: The 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining"
+ },
+ "niculescu2005": {
+  "doi": "10.1145/1102351.1102430",
+  "authors": [
+   "Niculescu-Mizil A",
+   "Caruana R"
+  ],
+  "title": "Predicting good probabilities with supervised learning",
+  "container": "Proceedings of the 22nd international conference on Machine learning - ICML '05",
+  "year": 2005,
+  "volume": null,
+  "issue": null,
+  "page": "625-632",
+  "type": "proceedings-article",
+  "publisher": "ACM Press",
+  "event": "the 22nd international conference"
+ },
+ "huang2016": {
+  "doi": "10.3390/en9100767",
+  "authors": [
+   "Huang N",
+   "Lu G",
+   "Xu D"
+  ],
+  "title": "A Permutation Importance-Based Feature Selection Method for Short-Term Electricity Load Forecasting Using Random Forest",
+  "container": "Energies",
+  "year": 2016,
+  "volume": "9",
+  "issue": "10",
+  "page": "767",
+  "type": "journal-article",
+  "publisher": "MDPI AG",
+  "event": ""
+ },
+ "luhede2025": {
+  "doi": "10.1016/j.envsci.2025.104164",
+  "authors": [
+   "Luhede A",
+   "Verma P",
+   "Upmann T"
+  ],
+  "title": "Value of Information analysis for marine conservation decision making",
+  "container": "Environmental Science & Policy",
+  "year": 2025,
+  "volume": "171",
+  "issue": null,
+  "page": "104164",
+  "type": "journal-article",
+  "publisher": "Elsevier BV",
+  "event": ""
+ },
+ "rendu1976": {
+  "doi": "10.1007/978-94-010-1470-0_28",
+  "authors": [
+   "Rendu JM"
+  ],
+  "title": "Bayesian Decision Theory Applied to Mineral Exploration and Mine Valuation",
+  "container": "Advanced Geostatistics in the Mining Industry",
+  "year": 1976,
+  "volume": null,
+  "issue": null,
+  "page": "435-445",
+  "type": "book-chapter",
+  "publisher": "Springer Netherlands",
+  "event": ""
+ }
+}

@@ -1,0 +1,114 @@
+{
+ "assumptions": {
+  "depth_atten_per_m": {
+   "mag": 0.35,
+   "emi": 0.25,
+   "gpr": 0.55,
+   "therm": 0.7,
+   "gas": 0.3,
+   "optical": 5.0
+  },
+  "moisture_gpr_atten": 2.2,
+  "moisture_emi_gain": 1.3,
+  "noise_sd": {
+   "mag": 0.3,
+   "emi": 0.35,
+   "gpr": 0.4,
+   "therm": 0.3,
+   "gas": 0.35,
+   "optical": 0.25
+  },
+  "dropout_p": {
+   "mag": 0.03,
+   "emi": 0.03,
+   "gpr": 0.08,
+   "therm": 0.05,
+   "gas": 0.1,
+   "optical": 0.05
+  },
+  "class_prior": [
+   0.1,
+   0.16,
+   0.1,
+   0.28,
+   0.16,
+   0.2
+  ],
+  "patch_scale_m": 4.5,
+  "gas_hazard_base_rate": 0.12,
+  "gas_hazard_organic_boost": 0.55
+ },
+ "response": {
+  "metal": [
+   3.0,
+   2.6,
+   2.2,
+   0.1,
+   0.05,
+   0.3
+  ],
+  "plastic": [
+   0.05,
+   0.15,
+   0.7,
+   0.1,
+   0.05,
+   1.8
+  ],
+  "glass": [
+   0.05,
+   0.1,
+   0.9,
+   0.1,
+   0.05,
+   1.2
+  ],
+  "organic": [
+   0.05,
+   0.9,
+   0.4,
+   1.6,
+   2.4,
+   0.9
+  ],
+  "cd": [
+   0.3,
+   0.5,
+   2.0,
+   0.15,
+   0.05,
+   0.6
+  ],
+  "inert": [
+   0.05,
+   0.2,
+   0.5,
+   0.1,
+   0.05,
+   0.4
+  ]
+ },
+ "classes": [
+  "metal",
+  "plastic",
+  "glass",
+  "organic",
+  "cd",
+  "inert"
+ ],
+ "sensors_baseline": [
+  "mag",
+  "emi",
+  "gpr",
+  "therm",
+  "gas"
+ ],
+ "sensors_all": [
+  "mag",
+  "emi",
+  "gpr",
+  "therm",
+  "gas",
+  "optical"
+ ]
+}

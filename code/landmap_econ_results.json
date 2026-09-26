@@ -1,0 +1,150 @@
+{
+ "seed": 20260926,
+ "n_mc": 20000,
+ "n_rep_econ": 20,
+ "econ_assumptions": {
+  "price_usd_per_t": {
+   "metal": [
+    250,
+    550
+   ],
+   "plastic": [
+    60,
+    180
+   ],
+   "glass": [
+    10,
+    40
+   ],
+   "organic": [
+    0,
+    15
+   ],
+   "cd": [
+    5,
+    25
+   ],
+   "inert": [
+    0,
+    5
+   ]
+  },
+  "recovery_fraction": {
+   "metal": [
+    0.55,
+    0.85
+   ],
+   "plastic": [
+    0.15,
+    0.4
+   ],
+   "glass": [
+    0.1,
+    0.3
+   ],
+   "organic": [
+    0.0,
+    0.05
+   ],
+   "cd": [
+    0.2,
+    0.45
+   ],
+   "inert": [
+    0.0,
+    0.02
+   ]
+  },
+  "mass_per_cell_t": [
+   0.9,
+   1.6
+  ],
+  "excavation_cost_usd_per_t": [
+   18,
+   32
+  ],
+  "processing_cost_usd_per_t": [
+   12,
+   28
+  ],
+  "survey_cost_usd_total": [
+   400,
+   1200
+  ]
+ },
+ "holdout_n_cells": 64,
+ "voi_example": {
+  "mean": 1124.8,
+  "median": 1079.68,
+  "p05": 153.91,
+  "p95": 2243.23,
+  "p_positive": 0.9757
+ },
+ "ev_survey_example": {
+  "mean": 2031.54,
+  "median": 1947.78,
+  "p05": 1044.14,
+  "p95": 3323.01,
+  "p_positive": 1.0
+ },
+ "ev_blind_example": {
+  "mean": 106.03,
+  "median": 0.0,
+  "p05": 0.0,
+  "p95": 717.58,
+  "p_positive": 0.2245
+ },
+ "breakeven_survey_cost_usd_example": {
+  "mean": 1920.34,
+  "median": 1870.68,
+  "p05": 1047.61,
+  "p95": 2965.75,
+  "p_positive": 1.0
+ },
+ "voi_averaged": {
+  "mean": 729.16,
+  "median": 662.82,
+  "p05": 14.14,
+  "p95": 1393.17,
+  "p_positive": 0.95
+ },
+ "breakeven_survey_cost_usd_averaged": {
+  "mean": 1530.12,
+  "median": 1450.6,
+  "p05": 829.61,
+  "p95": 2200.48,
+  "p_positive": 1.0
+ },
+ "sensor_value": {
+  "mag": {
+   "incremental_voi_mean": 65.4,
+   "incremental_voi_sd": 113.8,
+   "p_positive": 1.0
+  },
+  "emi": {
+   "incremental_voi_mean": 0.0,
+   "incremental_voi_sd": 85.1,
+   "p_positive": 0.65
+  },
+  "gpr": {
+   "incremental_voi_mean": -0.3,
+   "incremental_voi_sd": 24.6,
+   "p_positive": 0.6
+  },
+  "therm": {
+   "incremental_voi_mean": -3.5,
+   "incremental_voi_sd": 17.3,
+   "p_positive": 0.4
+  },
+  "gas": {
+   "incremental_voi_mean": -2.5,
+   "incremental_voi_sd": 16.2,
+   "p_positive": 0.25
+  }
+ },
+ "nir_delta_voi": {
+  "mean": -0.1,
+  "sd": 9.5,
+  "p_positive": 0.5
+ }
+}

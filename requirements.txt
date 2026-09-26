@@ -1,0 +1,8 @@
+numpy
+scipy
+scikit-learn
+xgboost
+matplotlib
+pillow
+python-docx
+requests
