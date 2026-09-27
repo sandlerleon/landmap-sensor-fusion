@@ -130,8 +130,8 @@ python audit_manuscript.py
 
 ## Citation
 
-Code and data archived at Zenodo (DOI to be added on release); manuscript preprint DOI to
-be added if/when deposited.
+- Code and data: [10.5281/zenodo.22984668](https://doi.org/10.5281/zenodo.22984668) (release v1.0.0)
+- Manuscript preprint: [10.5281/zenodo.22984670](https://doi.org/10.5281/zenodo.22984670)
 
 ## License
 
