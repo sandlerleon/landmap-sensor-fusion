@@ -1,0 +1,25 @@
+{
+ "batch_a": {
+  "label": "landmap_econ.py headline (seeds SEED+1000..)",
+  "n": 20,
+  "mean": 729.2,
+  "sd": 488.3
+ },
+ "batch_b": {
+  "label": "landmap_robustness.py reconciled-protocol baseline (seeds SEED..)",
+  "n": 20,
+  "mean": 967.4,
+  "sd": 578.8
+ },
+ "diff_se": 169.3,
+ "pooled": {
+  "n": 40,
+  "mean": 848.3,
+  "median": 923.7,
+  "sd": 542.1,
+  "se": 85.7,
+  "p_positive": 0.925
+ },
+ "diff": -238.2,
+ "diff_in_se_units": 1.41
+}

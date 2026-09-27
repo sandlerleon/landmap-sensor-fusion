@@ -36,7 +36,7 @@ architecture, and by how much.
 | Does the economic-layer classifier choice (RF vs. XGBoost, raw or calibrated) matter? | No — VOI differs by <2% across all three |
 | NIR augmentation (hypothetical response coefficients) | plastic F1 0.32 → 0.38; VOI unchanged (statistically) |
 | Gas-hazard classifier | ROC-AUC 0.94, 100% recall, but only 52% precision at the safety operating point |
-| VOI under baseline assumptions | median **$663** (averaged over 20 surveys), positive in 95% |
+| VOI under baseline assumptions | median **$924** (pooled over 40 independent surveys, two batches), positive in 92.5% |
 | Break-even survey cost | median **$1,451** |
 | 2-D decision-viability boundary | far more sensitive to economic adversity (β) than to sensor degradation (α) |
 
@@ -60,6 +60,8 @@ code/
   landmap_sensor_map.py          sensor-selection grid over metal/plastic price multipliers
   landmap_sensor_map_extreme.py  sensor-selection under deliberately extreme site archetypes
   landmap_voi_map.py             2-D decision-viability map, VOI(alpha, beta)
+  landmap_baseline_reconcile.py  pools the economic-layer and robustness-sweep baseline
+                                VOI batches into one canonical estimate with a proper SE
   harvest_refs.py                Crossref metadata + abstracts for every DOI reference
   make_figures.py                Figures 1-11 (300 dpi PNG + 600 dpi TIFF)
   build_manuscript.py            manuscript; every number read from the JSON outputs
@@ -83,6 +85,7 @@ python landmap_calib_voi.py        # -> landmap_calib_voi_results.json
 python landmap_sensor_map.py       # -> landmap_sensor_map_results.json
 python landmap_sensor_map_extreme.py  # -> landmap_sensor_map_extreme_results.json
 python landmap_voi_map.py          # -> landmap_voi_map_results.json
+python landmap_baseline_reconcile.py  # -> landmap_baseline_reconcile_results.json
 python harvest_refs.py             # -> _refs.json, _abstracts.txt
 python make_figures.py             # -> ../figures/
 python build_manuscript.py
@@ -111,6 +114,12 @@ python audit_manuscript.py
 - The economic layer uses random forest rather than XGBoost (the best raw classifier)
   because XGBoost's probabilities are less well calibrated; `landmap_calib_voi.py` tests
   this choice directly and finds it does not change the VOI conclusion.
+- The economic layer's headline VOI batch (20 surveys) and the robustness sweep's own
+  undegraded reference point (a second, matched-protocol batch) are independent Monte
+  Carlo estimates of the same baseline quantity and differ by 1.4 SE of their difference —
+  unsurprising sampling noise for a 20-survey average of a right-skewed distribution, not a
+  methodology inconsistency. `landmap_baseline_reconcile.py` pools both into one 40-survey
+  canonical estimate rather than reporting two numbers side by side.
 - The 1-D combined-degradation VOI-zero boundary is extended to a full 2-D
   decision-viability map (`landmap_voi_map.py`) over sensing-degradation severity and an
   independent economic-adversity severity axis; the boundary is far more sensitive to the

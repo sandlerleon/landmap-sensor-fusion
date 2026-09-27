@@ -196,7 +196,10 @@ def main():
         print("  repeat %d/%d done" % (rep + 1, N_REP_ECON))
 
     res["voi_averaged"] = summarize(voi_means)
+    res["voi_averaged"]["sd"] = round(float(np.std(voi_means, ddof=1)), 2)
+    res["voi_averaged_raw"] = [round(v, 2) for v in voi_means]
     res["breakeven_survey_cost_usd_averaged"] = summarize(be_means)
+    res["breakeven_survey_cost_usd_averaged_raw"] = [round(b, 2) for b in be_means]
     res["sensor_value"] = {s: {"incremental_voi_mean": round(float(np.mean(v)), 1),
                                "incremental_voi_sd": round(float(np.std(v, ddof=1)), 1),
                                "p_positive": round(float(np.mean(np.array(v) > 0)), 3)}

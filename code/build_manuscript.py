@@ -28,6 +28,7 @@ CV = json.load(io.open(os.path.join(HERE, "landmap_calib_voi_results.json"), enc
 SM = json.load(io.open(os.path.join(HERE, "landmap_sensor_map_results.json"), encoding="utf-8"))
 SME = json.load(io.open(os.path.join(HERE, "landmap_sensor_map_extreme_results.json"), encoding="utf-8"))
 VM = json.load(io.open(os.path.join(HERE, "landmap_voi_map_results.json"), encoding="utf-8"))
+BR = json.load(io.open(os.path.join(HERE, "landmap_baseline_reconcile_results.json"), encoding="utf-8"))
 
 LS_RESPONSE = LS.RESPONSE
 LS_ALL_SENSORS = LS.ALL_SENSORS
@@ -221,8 +222,9 @@ ABSTRACT = (
     "classifier reaches ROC-AUC %.2f and %.0f%% recall at a safety-oriented operating point, "
     "though at that operating point only %.0f%% of cells flagged as hazardous are true "
     "positives. Across the baseline synthetic scenarios and stated economic parameter "
-    "distributions, the simulated survey has positive median VOI (P(VOI>0) = %.2f) and a "
-    "break-even survey cost of $%.0f; a two-dimensional map over sensing-quality and "
+    "distributions, pooling %d independent survey realisations, the simulated survey has "
+    "positive median VOI ($%.0f, P(VOI>0) = %.2f) and a break-even survey cost of $%.0f; a "
+    "two-dimensional map over sensing-quality and "
     "economic-adversity severity locates a model-specific VOI-zero boundary rather than a "
     "single degradation threshold, and a further test across deliberately extreme economic "
     "regimes finds the magnetometer's economic advantage %s. All results are model "
@@ -233,8 +235,8 @@ ABSTRACT = (
        abl["all"]["macro_f1"] - abl["all_minus_gpr"]["macro_f1"],
        pf1(nir["baseline"], "plastic"), pf1(nir["plus_nir"], "plastic"),
        haz["auc"]["mean"], haz["recall"]["mean"] * 100, hazx["pooled_precision"] * 100,
-       econ["voi_averaged"]["p_positive"], econ["breakeven_survey_cost_usd_averaged"]["median"],
-       EXTREME_SUMMARY))
+       BR["pooled"]["n"], BR["pooled"]["median"], BR["pooled"]["p_positive"],
+       econ["breakeven_survey_cost_usd_averaged"]["median"], EXTREME_SUMMARY))
 Pp(ABSTRACT, indent=False)
 Pp("Keywords: landfill mining; multimodal sensor fusion; spatial cross-validation; value of "
    "information; random forest; XGBoost; probability calibration; uncertainty quantification",
@@ -620,28 +622,30 @@ FIG("figure8_voi_breakeven")
 CAP("Fig. 8 (a) Monte Carlo distribution of Value of Information for one representative "
     "survey (%d draws). (b) Distribution of the break-even survey cost (the maximum a "
     "rational operator should pay), same draws." % 8000)
-Pp("For the representative survey used throughout Sections 5.3\u20135.6, median VOI is "
-   "$%.0f (90%% interval $%.0f\u2013$%.0f) and the survey is worth doing in %.0f%% of Monte "
-   "Carlo draws. Averaged over %d independent synthetic surveys, mean VOI is $%.0f "
-   "(median $%.0f), positive in %.0f%% of surveys, and the median break-even survey cost is "
-   "$%.0f \u2014 the amount up to which an operator should rationally be willing to pay for "
-   "a survey of this kind under the stated economic assumptions."
+Pp("For the representative survey used throughout Sections 5.3–5.6, median VOI is "
+   "$%.0f (90%% interval $%.0f–$%.0f) and the survey is worth doing in %.0f%% of Monte "
+   "Carlo draws."
    % (econ["voi_example"]["median"], econ["voi_example"]["p05"], econ["voi_example"]["p95"],
-      econ["voi_example"]["p_positive"] * 100, E["n_rep_econ"],
-      econ["voi_averaged"]["mean"], econ["voi_averaged"]["median"], econ["voi_averaged"]["p_positive"] * 100,
+      econ["voi_example"]["p_positive"] * 100))
+Pp("A single survey's mean VOI is itself a noisy estimate of the population quantity this "
+   "paper reports as its headline number, so it is averaged over many independent synthetic "
+   "surveys rather than quoted from one. Two such batches were run under an identical "
+   "protocol (random forest, block-8 spatial holdout, undegraded assumptions) but "
+   "independent seeds: the original %d-survey batch (mean $%.0f) and a second, matched-"
+   "protocol batch used as the robustness sweep's own undegraded reference point (mean "
+   "$%.0f); the two differ by %.1f standard errors of their difference, well within normal "
+   "sampling variation for a %d-survey average of a right-skewed VOI distribution. Rather "
+   "than report either batch alone, this paper's one canonical baseline VOI estimate pools "
+   "both, %d survey realisations in total: mean $%.0f (median $%.0f, SE $%.0f), positive in "
+   "%.0f%% of surveys, and a median break-even survey cost of $%.0f — the amount up to "
+   "which an operator should rationally be willing to pay for a survey of this kind under "
+   "the stated economic assumptions. Section 5.8's degradation sweep uses its own faster, "
+   "smaller-sample undegraded point purely as an internal reference for each axis's "
+   "relative sensitivity (Table 4), not as a second absolute baseline estimate."
+   % (BR["batch_a"]["n"], BR["batch_a"]["mean"], BR["batch_b"]["mean"], BR["diff_in_se_units"],
+      BR["batch_a"]["n"], BR["pooled"]["n"], BR["pooled"]["mean"], BR["pooled"]["median"],
+      BR["pooled"]["se"], BR["pooled"]["p_positive"] * 100,
       econ["breakeven_survey_cost_usd_averaged"]["median"]))
-Pp("Section 5.8's baseline scenario reports a somewhat higher mean VOI ($%.0f) for what is "
-   "nominally the same untouched baseline. The two estimates are not expected to coincide: "
-   "the robustness sweep averages %d survey realisations at %d Monte Carlo draws each per "
-   "scenario, chosen for speed across %d scenarios, against %d realisations at %d draws "
-   "here; Section 5.9 confirms the classifier itself (random forest throughout the economic "
-   "layer, versus XGBoost in the robustness sweep before this revision) changes mean VOI by "
-   "only about $%.0f, so the gap is sampling noise in the repeat-average estimate, not a "
-   "protocol inconsistency — both are unbiased estimates of the same baseline quantity, "
-   "and $%.0f falls within their combined sampling uncertainty."
-   % (RB["baseline"]["voi_mean"], RB["n_rep"], 1500, 33,
-      E["n_rep_econ"], E["n_mc"], abs(CV["voi_diff_xgb_minus_rf"]["mean"]),
-      abs(RB["baseline"]["voi_mean"] - econ["voi_averaged"]["mean"])))
 H2("5.8 Synthetic-to-real robustness")
 AXIS_LABEL = {"noise_mult": "Sensor noise (× baseline SD)", "dropout_mult": "Dropout probability (× baseline)",
               "gpr_atten_mult": "GPR depth attenuation (× baseline)",
@@ -653,8 +657,13 @@ TBL(["Degradation axis", "Baseline\nmacro-F1", "Most severe\nmacro-F1", "Baselin
       "%.0f" % arr[0]["voi_mean"], "%.0f" % arr[-1]["voi_mean"]]
      for axis, arr in RB["sweeps"].items()], widths=[2.0, 0.95, 0.95, 1.0, 1.0])
 CAP("Table 4. One-axis synthetic-to-real degradation sweep (Section 4.6): each row varies "
-    "only that axis, from baseline to the most severe level tested, holding all others fixed. "
-    "Full multi-level sweeps are in the released results file.")
+    "only that axis, from baseline to the most severe level tested, holding all others "
+    "fixed. The “Baseline” column is this sweep's own smaller-sample undegraded "
+    "reference point (%d realisations, %d Monte Carlo draws), used only to measure each "
+    "axis's relative degradation; it is not the paper's canonical VOI estimate, which "
+    "Section 5.7 defines separately by pooling %d realisations. Full multi-level sweeps are "
+    "in the released results file."
+    % (RB["n_rep"], 1500, BR["pooled"]["n"]))
 FIG("figure9_robustness")
 CAP("Fig. 9 (a) Macro-F1 (left axis) and mean VOI (right axis, dashed zero line) against a "
     "combined synthetic-to-real degradation level moving noise, dropout, GPR attenuation, "
@@ -714,11 +723,17 @@ Pp("The economic layer (Sections 5.4 and 5.7) uses random forest rather than XGB
    "another and all give P(VOI>0) ≥ %.0f%%: classifier choice for the economic layer "
    "does not materially change the economic conclusion in this simulation, which is itself "
    "informative — it means the classifier-calibration concern raised by Section 5.6's "
-   "Brier-score gap, while real, is not what is driving this paper's headline VOI estimate."
+   "Brier-score gap, while real, is not what is driving this paper's headline VOI estimate. "
+   "This comparison uses one fixed batch of %d survey seeds so the three classifiers are "
+   "compared on identical draws (a paired design); Section 5.7's canonical baseline VOI "
+   "pools this same random-forest batch with an independent second batch for a lower-"
+   "variance point estimate, which is why its value differs slightly from the $%.0f quoted "
+   "here for random forest alone."
    % (R["calibration"]["xgb"]["mean"], R["calibration"]["rf"]["mean"], CV["n_rep"],
       CV["voi"]["rf"]["mean"], CV["voi"]["xgb"]["mean"], CV["voi_diff_xgb_minus_rf"]["mean"],
       CV["voi"]["xgb_calibrated"]["mean"], 3, CV["brier"]["xgb_calibrated"]["mean"],
-      min(CV["voi"][k]["p_positive"] for k in ("rf", "xgb", "xgb_calibrated")) * 100))
+      min(CV["voi"][k]["p_positive"] for k in ("rf", "xgb", "xgb_calibrated")) * 100,
+      CV["n_rep"], CV["voi"]["rf"]["mean"]))
 
 H2("5.10 Sensor selection depends on site composition, not price alone")
 FIG("figure10_sensor_selection")
@@ -804,7 +819,8 @@ Pp("We tested, rather than assumed, whether random splitting overestimates perfo
    "neighbourhood-averaged features, or a real dataset whose noise correlation structure "
    "differs from our assumptions, could behave differently, and spatial blocking costs "
    "nothing to keep as standard practice." % C("roberts2017", "ploton2020"))
-H2("6.3 The plastic/glass limitation is a physics limitation, not a tuning problem")
+H2("6.3 The plastic/glass limitation arises from the assumed sensor-response physics, not "
+   "classifier tuning")
 Pp("The proposal's diagnosis \u2014 that plastic and glass are weakly magnetic and poorly "
    "distinguished by this channel set, and that no amount of classifier tuning fixes this "
    "\u2014 is supported by our results: three different classifier families all fail on "
@@ -944,8 +960,9 @@ H("8 Conclusions")
 Pp("A multimodal sensor-fusion architecture for pre-excavation landfill characterisation "
    "was evaluated by simulation against the questions it raises rather than the claims "
    "originally made for it. Metal, organic material and construction and demolition debris "
-   "are classified reliably (F1 up to %.2f) under a spatially valid protocol; plastic and "
-   "glass are not (F1 %.2f\u2013%.2f), for reasons of sensor physics rather than "
+   "are classified with high simulated F1 (up to %.2f) under a spatially valid protocol; "
+   "plastic and glass are not (F1 %.2f\u2013%.2f), for reasons of the assumed sensor-"
+   "response physics rather than "
    "classifier choice. Random per-cell splitting did not detectably inflate performance "
    "relative to spatial blocking in this configuration, a tested and reported null result "
    "rather than an assumption. The paper's central finding is that predictive utility is "
@@ -954,9 +971,9 @@ Pp("A multimodal sensor-fusion architecture for pre-excavation landfill characte
    "to GPR or EMI under deliberately different, still economically nameable site "
    "compositions (Section 5.10) \u2014 optimal sensor selection is a function of site "
    "composition, market economics and sensor uncertainty, not a fixed property of the "
-   "sensing architecture. Across the baseline synthetic scenarios and stated economic "
-   "parameter distributions, the simulated survey has positive median VOI ($%.0f) and a "
-   "break-even cost of $%.0f, and this classifier-layer choice was itself tested and found "
+   "sensing architecture. Pooling %d independent survey realisations under baseline "
+   "economics, the simulated survey has positive median VOI ($%.0f) and a break-even cost "
+   "of $%.0f, and this classifier-layer choice was itself tested and found "
    "not to matter (Section 5.9). A two-dimensional decision-viability map (Section 5.11) "
    "replaces the single combined-degradation boundary with a full VOI(\u03b1,\u03b2) surface, "
    "showing the economic conclusion is considerably more sensitive to adverse market "
@@ -966,7 +983,7 @@ Pp("A multimodal sensor-fusion architecture for pre-excavation landfill characte
    % (max(R["pooled_baseline"][k]["per_class_f1"]["metal"] for k in KINDS),
       min(R["pooled_baseline"][k]["per_class_f1"]["glass"] for k in KINDS),
       max(R["pooled_baseline"][k]["per_class_f1"]["plastic"] for k in KINDS),
-      econ["voi_averaged"]["median"],
+      BR["pooled"]["n"], BR["pooled"]["median"],
       econ["breakeven_survey_cost_usd_averaged"]["median"]))
 
 # ==================================================================== DECLARATIONS

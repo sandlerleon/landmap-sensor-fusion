@@ -12,7 +12,7 @@ import json
 import numpy as np
 
 import landmap_synth as LS
-from landmap_econ import breakeven_survey_cost, monte_carlo_voi, sample_econ, voi_for_survey
+from landmap_econ import N_REP_ECON, breakeven_survey_cost, monte_carlo_voi, sample_econ, voi_for_survey
 from landmap_model import make_classifier, spatial_split
 
 SEED = 20260926
@@ -47,7 +47,7 @@ def degraded_response(overlap_shrink):
 
 
 def eval_scenario(noise_mult, dropout_mult, gpr_atten_mult, moisture_mult, overlap_shrink,
-                  n_rep=N_REP, seed=SEED):
+                  n_rep=N_REP, seed=SEED, n_mc=1500):
     A = degraded_assumptions(noise_mult, dropout_mult, gpr_atten_mult, moisture_mult)
     R = degraded_response(overlap_shrink)
     macro_f1s, vois, bes = [], [], []
@@ -63,20 +63,29 @@ def eval_scenario(noise_mult, dropout_mult, gpr_atten_mult, moisture_mult, overl
         proba = clf.predict_proba(Xf[mask])
         from sklearn.metrics import f1_score
         macro_f1s.append(f1_score(y[mask], pred, average="macro", zero_division=0))
-        v, _, _, _ = monte_carlo_voi(proba, y[mask], n_mc=1500, seed=s)
+        v, _, _, _ = monte_carlo_voi(proba, y[mask], n_mc=n_mc, seed=s)
         vois.append(float(np.mean(v)))
-        d = breakeven_survey_cost(proba, y[mask], n_mc=1500, seed=s)
+        d = breakeven_survey_cost(proba, y[mask], n_mc=n_mc, seed=s)
         bes.append(float(np.mean(d)))
     return {"macro_f1_mean": round(float(np.mean(macro_f1s)), 4),
             "macro_f1_sd": round(float(np.std(macro_f1s, ddof=1)), 4),
             "voi_mean": round(float(np.mean(vois)), 1), "voi_sd": round(float(np.std(vois, ddof=1)), 1),
             "voi_p_positive": round(float(np.mean(np.array(vois) > 0)), 3),
-            "breakeven_mean": round(float(np.mean(bes)), 1)}
+            "breakeven_mean": round(float(np.mean(bes)), 1),
+            "voi_raw": [round(v, 2) for v in vois], "breakeven_raw": [round(b, 2) for b in bes]}
 
 
 def main():
     res = {"seed": SEED, "n_rep": N_REP, "baseline": eval_scenario(1, 1, 1, 1, 0)}
-    print("baseline:", res["baseline"])
+    print("baseline (sweep protocol, n_rep=%d, n_mc=1500):" % N_REP, res["baseline"])
+
+    # ---- canonical baseline VOI: same n_rep/n_mc protocol as landmap_econ.py's headline
+    # number (N_REP_ECON repeats, n_mc=3000), so the paper reports one baseline estimate
+    # rather than two differently-sampled numbers for what is conceptually the same quantity.
+    res["baseline_reconciled"] = eval_scenario(1, 1, 1, 1, 0, n_rep=N_REP_ECON, n_mc=3000)
+    res["baseline_reconciled"]["n_rep"] = N_REP_ECON
+    res["baseline_reconciled"]["n_mc"] = 3000
+    print("baseline (reconciled, n_rep=%d, n_mc=3000):" % N_REP_ECON, res["baseline_reconciled"])
 
     # ---- one-axis sweeps
     sweeps = {

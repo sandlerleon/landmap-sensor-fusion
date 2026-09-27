@@ -16,6 +16,7 @@ OUT = r"C:\Users\Leon\Downloads\LANDMAP_EMA"
 R = json.load(io.open(os.path.join(HERE, "landmap_model_results.json"), encoding="utf-8"))
 E = json.load(io.open(os.path.join(HERE, "landmap_econ_results.json"), encoding="utf-8"))
 RB = json.load(io.open(os.path.join(HERE, "landmap_robustness_results.json"), encoding="utf-8"))
+BR = json.load(io.open(os.path.join(HERE, "landmap_baseline_reconcile_results.json"), encoding="utf-8"))
 SME = json.load(io.open(os.path.join(HERE, "landmap_sensor_map_extreme_results.json"), encoding="utf-8"))
 VM = json.load(io.open(os.path.join(HERE, "landmap_voi_map_results.json"), encoding="utf-8"))
 REPO_URL = "https://github.com/sandlerleon/landmap-sensor-fusion"
@@ -93,13 +94,13 @@ for t in [
     "raises plastic F1 from %.2f to %.2f but leaves VOI statistically unchanged."
     % (abl["all"]["macro_f1"], abl["all_minus_gpr"]["macro_f1"], sv["mag"]["p_positive"] * 100,
        nir["baseline"]["per_class_f1"]["plastic"], nir["plus_nir"]["per_class_f1"]["plastic"]),
-    "Across the baseline synthetic scenarios the simulated survey has positive median VOI "
-    "(median $%.0f, break-even survey cost $%.0f); a two-dimensional map over sensing-"
-    "quality and economic-adversity severity shows this conclusion is considerably more "
-    "sensitive to adverse secondary-material markets than to sensor degradation itself, "
-    "and gives a model-specific decision-viability boundary rather than a single "
-    "degradation percentage."
-    % (E["voi_averaged"]["median"], E["breakeven_survey_cost_usd_averaged"]["median"]),
+    "Pooling %d independent survey realisations under baseline economics, the simulated "
+    "survey has positive median VOI (median $%.0f, break-even survey cost $%.0f); a "
+    "two-dimensional map over sensing-quality and economic-adversity severity shows this "
+    "conclusion is considerably more sensitive to adverse secondary-material markets than "
+    "to sensor degradation itself, and gives a model-specific decision-viability boundary "
+    "rather than a single degradation percentage."
+    % (BR["pooled"]["n"], BR["pooled"]["median"], E["breakeven_survey_cost_usd_averaged"]["median"]),
     "The gas-hazard classifier reaches ROC-AUC %.2f and %.0f%% recall at a safety-oriented "
     "operating point, and the manuscript closes with a field validation and falsification "
     "plan giving pre-specified acceptance criteria for every prediction."
