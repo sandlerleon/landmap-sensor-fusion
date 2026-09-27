@@ -131,7 +131,12 @@ python audit_manuscript.py
 ## Citation
 
 - Code and data: [10.5281/zenodo.22984668](https://doi.org/10.5281/zenodo.22984668) (release v1.0.0)
-- Manuscript preprint: [10.5281/zenodo.22984670](https://doi.org/10.5281/zenodo.22984670)
+- Manuscript preprint: [10.5281/zenodo.22984669](https://doi.org/10.5281/zenodo.22984669) (concept DOI,
+  always resolves to the latest version; current: v1.0.1, a copyedited manuscript with several
+  sense-changing errors introduced by an external copyediting pass corrected — see
+  `manuscript_repair/fix_rubriq_v2.py` for the exact list. Results, figures, tables and
+  references are unchanged from v1.0.0.)
+- A line-number-free version for engrXiv submission is at `manuscript/LANDMAP_EMA_Manuscript_engrXiv.pdf`.
 
 ## License
 
