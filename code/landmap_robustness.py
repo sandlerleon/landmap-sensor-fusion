@@ -57,7 +57,7 @@ def eval_scenario(noise_mult, dropout_mult, gpr_atten_mult, moisture_mult, overl
         grid = surv["grid"]
         Xf, y, haz, feat = LS.to_table(surv, sensors=LS.SENSORS)
         mask = spatial_split(grid, block=8, seed=s)
-        clf = make_classifier("xgb")
+        clf = make_classifier("rf")   # matches the economic layer's classifier choice (landmap_econ.py)
         clf.fit(Xf[~mask], y[~mask])
         pred = clf.predict(Xf[mask])
         proba = clf.predict_proba(Xf[mask])

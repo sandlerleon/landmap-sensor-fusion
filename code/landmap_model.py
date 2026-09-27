@@ -12,8 +12,9 @@ from sklearn.calibration import CalibratedClassifierCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import (brier_score_loss, f1_score, precision_recall_curve,
-                             recall_score, roc_auc_score)
+from sklearn.metrics import (average_precision_score, brier_score_loss, f1_score,
+                             precision_recall_curve, precision_score, recall_score,
+                             roc_auc_score)
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBClassifier
@@ -127,13 +128,21 @@ def hazard_eval(haz_train_feats, haz, mask_test, seed):
     if yte.sum() == 0 or yte.sum() == len(yte):
         return None
     auc = roc_auc_score(yte, proba)
+    pr_auc = average_precision_score(yte, proba)
     prec, rec, thr = precision_recall_curve(yte, proba)
     # a safety-oriented operating point: the lowest threshold achieving >=95% recall
     ok = rec[:-1] >= 0.95
     thr_choice = float(thr[ok][-1]) if ok.any() else float(thr[np.argmax(rec[:-1])])
     pred = (proba >= thr_choice).astype(int)
-    return {"auc": float(auc), "recall": float(recall_score(yte, pred)),
-            "operating_threshold": thr_choice, "n_hazard_test": int(yte.sum()), "n_test": len(yte)}
+    tp = int(((pred == 1) & (yte == 1)).sum()); fp = int(((pred == 1) & (yte == 0)).sum())
+    tn = int(((pred == 0) & (yte == 0)).sum()); fn = int(((pred == 0) & (yte == 1)).sum())
+    specificity = tn / (tn + fp) if (tn + fp) > 0 else float("nan")
+    precision = precision_score(yte, pred, zero_division=0)
+    return {"auc": float(auc), "pr_auc": float(pr_auc), "recall": float(recall_score(yte, pred)),
+            "precision": float(precision), "specificity": float(specificity),
+            "frac_flagged": float(pred.mean()), "operating_threshold": thr_choice,
+            "n_hazard_test": int(yte.sum()), "n_test": len(yte),
+            "tp": tp, "fp": fp, "tn": tn, "fn": fn}
 
 
 def run_repeats(sensor_sets, block=8, n_repeats=N_REPEATS, split="spatial", classifiers=("logreg", "rf", "xgb")):

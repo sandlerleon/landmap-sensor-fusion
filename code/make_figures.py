@@ -111,7 +111,7 @@ ax.set_xticks(x); ax.set_xticklabels(LS.CLASSES)
 ax.set_ylabel("F1 score (pooled, spatial holdout)")
 ax.set_ylim(0, 1.05)
 ax.legend(frameon=False)
-ax.set_title("Per-class classification performance, six-sensor baseline", loc="left", fontweight="bold")
+ax.set_title("Per-class classification performance, five-channel baseline", loc="left", fontweight="bold")
 ax.spines[["top", "right"]].set_visible(False)
 save(fig, "figure3_per_class_f1")
 
@@ -184,7 +184,7 @@ classes_show = ["plastic", "glass", "metal", "organic", "cd", "inert"]
 xp = np.arange(len(classes_show))
 base_v = [n["baseline"]["per_class_f1"][c] for c in classes_show]
 nir_v = [n["plus_nir"]["per_class_f1"][c] for c in classes_show]
-ax.bar(xp - 0.18, base_v, 0.32, label="6-sensor baseline", color=BLUE)
+ax.bar(xp - 0.18, base_v, 0.32, label="5-channel baseline", color=BLUE)
 ax.bar(xp + 0.18, nir_v, 0.32, label="+ NIR/optical channel", color=GREEN)
 ax.set_xticks(xp); ax.set_xticklabels(classes_show)
 ax.set_ylabel("pooled F1")
@@ -269,3 +269,53 @@ if RB is not None:
     save(fig, "figure9_robustness")
 else:
     print("robustness results not yet available; figure9 skipped")
+
+# ------------------------------------------------------------------ Figure 10: sensor-selection archetypes
+try:
+    SME = json.load(open("landmap_sensor_map_extreme_results.json"))
+except FileNotFoundError:
+    SME = None
+if SME is not None:
+    fig, ax = plt.subplots(figsize=(7.6, 3.8))
+    arch_order = ["baseline", "metal_starved", "polymer_max", "cd_max", "glass_max"]
+    arch_lab = {"baseline": "Baseline\n(metal-\ndominant)", "metal_starved": "Metal\nstarved",
+               "polymer_max": "Polymer-\nrich", "cd_max": "C&D-\nrich", "glass_max": "Glass-\nrich"}
+    sensors5 = LS.SENSORS
+    scol = {"mag": BLUE, "emi": GREEN, "gpr": ORANGE, "therm": PURPLE, "gas": RED}
+    x = np.arange(len(arch_order)); w = 0.16
+    for i, s in enumerate(sensors5):
+        vals = [SME[a]["incremental_voi_mean"][s] for a in arch_order]
+        ax.bar(x + (i - 2) * w, vals, w, label=s, color=scol[s])
+    ax.axhline(0, color="#333333", lw=0.8)
+    ax.set_xticks(x); ax.set_xticklabels([arch_lab[a] for a in arch_order], fontsize=7.6)
+    ax.set_ylabel("incremental VOI (USD, mean over repeats)")
+    ax.legend(frameon=False, ncol=5, fontsize=7.2, loc="upper center", bbox_to_anchor=(0.5, 1.14))
+    ax.set_title("Top incremental-VOI sensor by site archetype", loc="left", fontweight="bold")
+    ax.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout()
+    save(fig, "figure10_sensor_selection")
+else:
+    print("sensor-map-extreme results not yet available; figure10 skipped")
+
+# ------------------------------------------------------------------ Figure 11: 2D VOI decision-viability map
+try:
+    VM = json.load(open("landmap_voi_map_results.json"))
+except FileNotFoundError:
+    VM = None
+if VM is not None:
+    fig, ax = plt.subplots(figsize=(6.4, 5.0))
+    alpha = VM["alpha_grid"]; beta = VM["beta_grid"]
+    Z = np.array([[c["voi_mean"] for c in row] for row in VM["grid"]])
+    vmax = np.abs(Z).max()
+    im = ax.imshow(Z, origin="lower", cmap="RdBu", vmin=-vmax, vmax=vmax, aspect="auto",
+                   extent=[min(beta), max(beta), min(alpha), max(alpha)])
+    cb = fig.colorbar(im, ax=ax); cb.set_label("mean VOI (USD)")
+    cs = ax.contour(beta, alpha, Z, levels=[0], colors="black", linewidths=2.0)
+    ax.clabel(cs, fmt={0: "VOI = 0"}, fontsize=8)
+    ax.set_xlabel("economic-adversity severity (beta)")
+    ax.set_ylabel("sensing-degradation severity (alpha)")
+    ax.set_title("Decision-viability map: VOI(alpha, beta)", loc="left", fontweight="bold")
+    fig.tight_layout()
+    save(fig, "figure11_voi_viability_map")
+else:
+    print("voi-map results not yet available; figure11 skipped")

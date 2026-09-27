@@ -18,6 +18,11 @@ R = json.load(io.open(HERE + r"\landmap_model_results.json", encoding="utf-8"))
 E = json.load(io.open(HERE + r"\landmap_econ_results.json", encoding="utf-8"))
 RB = json.load(io.open(HERE + r"\landmap_robustness_results.json", encoding="utf-8"))
 DOIREFS = json.load(io.open(HERE + r"\_refs.json", encoding="utf-8"))
+HX = json.load(io.open(HERE + r"\landmap_hazard_extra_results.json", encoding="utf-8"))
+CV = json.load(io.open(HERE + r"\landmap_calib_voi_results.json", encoding="utf-8"))
+SM = json.load(io.open(HERE + r"\landmap_sensor_map_results.json", encoding="utf-8"))
+SME = json.load(io.open(HERE + r"\landmap_sensor_map_extreme_results.json", encoding="utf-8"))
+VM = json.load(io.open(HERE + r"\landmap_voi_map_results.json", encoding="utf-8"))
 
 with zipfile.ZipFile(DOCX) as z:
     xml = z.read("word/document.xml").decode("utf-8")
@@ -76,6 +81,36 @@ for r in cd_:
 check_present("noise baseline F1", "%.2f" % RB["sweeps"]["noise_mult"][0]["macro_f1_mean"])
 check_present("noise max F1", "%.2f" % RB["sweeps"]["noise_mult"][-1]["macro_f1_mean"])
 
+# ---- hazard extras (precision/specificity, not just recall/AUC)
+check_present("hazard pooled precision", "%.0f" % (HX["pooled_precision"] * 100))
+check_present("hazard pooled specificity", "%.0f" % (HX["pooled_specificity"] * 100))
+check_present("hazard frac flagged", "%.0f" % (HX["metrics"]["frac_flagged"]["mean"] * 100))
+check_present("hazard pr_auc", "%.3f" % HX["metrics"]["pr_auc"]["mean"])
+
+# ---- classifier-choice / calibration VOI comparison
+check_present("calib VOI rf mean", "$%.0f" % CV["voi"]["rf"]["mean"])
+check_present("calib VOI xgb mean", "$%.0f" % CV["voi"]["xgb"]["mean"])
+check_present("calib VOI xgb_calibrated mean", "$%.0f" % CV["voi"]["xgb_calibrated"]["mean"])
+check_present("calib brier xgb_calibrated", "%.3f" % CV["brier"]["xgb_calibrated"]["mean"])
+
+# ---- sensor-selection grid + extreme archetypes
+check_present("sensor map metal_mult range low", "%.0f" % SM["metal_mult"][0])
+check_present("sensor map plastic_mult range high", "%.0f" % SM["plastic_mult"][-1])
+for arch in ("polymer_max", "cd_max", "glass_max"):
+    check_present("extreme archetype %s winner value" % arch,
+                  "%.0f" % SME[arch]["incremental_voi_mean"][SME[arch]["winner"]])
+
+# ---- 2D VOI decision-viability map
+check_present("voi map alpha=0 beta-zero", "%.2f" % [z["beta_at_voi_zero"] for z in VM["zero_crossings"]
+                                                     if z["alpha"] == 0.0][0])
+check_present("voi map alpha=1 beta-zero", "%.2f" % [z["beta_at_voi_zero"] for z in VM["zero_crossings"]
+                                                     if z["alpha"] == 1.0][0])
+
+# ---- terminology that must NOT survive: old "falsification boundary" phrasing, seventh channel
+for bad_phrase in ("falsification boundary", "seventh, optical", "a XGBoost", "a xgb classifier"):
+    if bad_phrase in TEXT:
+        problems.append("STALE TERMINOLOGY still present: %r" % bad_phrase)
+
 # ---- references: every DOI-tagged source cited, every citation has a reference
 cited = set(re.findall(r"https://doi\.org/(10\.\S+?)(?=[)\]\s,;]|$)", TEXT))
 all_dois = {v["doi"] for v in DOIREFS.values()}
@@ -84,9 +119,9 @@ if uncited:
     problems.append("REFERENCES not appearing as doi.org links in body/reflist: %s" % uncited)
 
 # ---- figures/tables mentioned
-for i in range(1, 10):
+for i in range(1, 12):
     check_present("Figure %d mention" % i, "Fig. %d" % i)
-for i in range(1, 6):
+for i in range(1, 8):
     check_present("Table %d mention" % i, "Table %d" % i)
 
 # ---- stale/withdrawn/placeholder scan

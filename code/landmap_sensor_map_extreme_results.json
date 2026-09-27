@@ -1,0 +1,117 @@
+{
+ "baseline": {
+  "params": {
+   "metal_mult": 1.0,
+   "challenger_class": "plastic",
+   "challenger_price_mult": 1.0,
+   "challenger_rec_mult": 1.0
+  },
+  "incremental_voi_mean": {
+   "mag": 152.9234710967571,
+   "emi": 64.78087829585459,
+   "gpr": 2.39946015324252,
+   "therm": 1.6115654900341496,
+   "gas": -0.16280841687445977
+  },
+  "p_positive": {
+   "mag": 0.8666666666666667,
+   "emi": 0.8,
+   "gpr": 0.4666666666666667,
+   "therm": 0.4666666666666667,
+   "gas": 0.5333333333333333
+  },
+  "winner": "mag"
+ },
+ "metal_starved": {
+  "params": {
+   "metal_mult": 0.3,
+   "challenger_class": "plastic",
+   "challenger_price_mult": 1.0,
+   "challenger_rec_mult": 1.0
+  },
+  "incremental_voi_mean": {
+   "mag": -0.04667366470472037,
+   "emi": 0.18272773354918476,
+   "gpr": -0.19628147218269684,
+   "therm": -0.218280314351955,
+   "gas": 0.0279638140105817
+  },
+  "p_positive": {
+   "mag": 0.5333333333333333,
+   "emi": 0.7333333333333333,
+   "gpr": 0.3333333333333333,
+   "therm": 0.26666666666666666,
+   "gas": 0.4666666666666667
+  },
+  "winner": "emi"
+ },
+ "polymer_max": {
+  "params": {
+   "metal_mult": 0.3,
+   "challenger_class": "plastic",
+   "challenger_price_mult": 5.0,
+   "challenger_rec_mult": 4.0
+  },
+  "incremental_voi_mean": {
+   "mag": 21.15415067681398,
+   "emi": 167.64826947578888,
+   "gpr": 207.04953143578035,
+   "therm": -4.772272064971469,
+   "gas": 148.05119021791023
+  },
+  "p_positive": {
+   "mag": 0.7333333333333333,
+   "emi": 0.9333333333333333,
+   "gpr": 0.8666666666666667,
+   "therm": 0.4666666666666667,
+   "gas": 0.6
+  },
+  "winner": "gpr"
+ },
+ "cd_max": {
+  "params": {
+   "metal_mult": 0.3,
+   "challenger_class": "cd",
+   "challenger_price_mult": 6.0,
+   "challenger_rec_mult": 2.5
+  },
+  "incremental_voi_mean": {
+   "mag": 16.361303412383425,
+   "emi": 49.414843714365,
+   "gpr": 61.96404750078475,
+   "therm": 5.759160297901372,
+   "gas": 6.948098957996077
+  },
+  "p_positive": {
+   "mag": 0.8,
+   "emi": 0.9333333333333333,
+   "gpr": 0.9333333333333333,
+   "therm": 0.5333333333333333,
+   "gas": 0.5333333333333333
+  },
+  "winner": "gpr"
+ },
+ "glass_max": {
+  "params": {
+   "metal_mult": 0.3,
+   "challenger_class": "glass",
+   "challenger_price_mult": 8.0,
+   "challenger_rec_mult": 3.5
+  },
+  "incremental_voi_mean": {
+   "mag": -14.779436524004037,
+   "emi": 77.14510860710486,
+   "gpr": 45.047488305210024,
+   "therm": 32.19126605923038,
+   "gas": 4.576169449747726
+  },
+  "p_positive": {
+   "mag": 0.4666666666666667,
+   "emi": 0.8666666666666667,
+   "gpr": 0.6666666666666666,
+   "therm": 0.8666666666666667,
+   "gas": 0.5333333333333333
+  },
+  "winner": "emi"
+ }
+}

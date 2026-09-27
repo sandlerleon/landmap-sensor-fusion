@@ -16,12 +16,15 @@ OUT = r"C:\Users\Leon\Downloads\LANDMAP_EMA"
 R = json.load(io.open(os.path.join(HERE, "landmap_model_results.json"), encoding="utf-8"))
 E = json.load(io.open(os.path.join(HERE, "landmap_econ_results.json"), encoding="utf-8"))
 RB = json.load(io.open(os.path.join(HERE, "landmap_robustness_results.json"), encoding="utf-8"))
+SME = json.load(io.open(os.path.join(HERE, "landmap_sensor_map_extreme_results.json"), encoding="utf-8"))
+VM = json.load(io.open(os.path.join(HERE, "landmap_voi_map_results.json"), encoding="utf-8"))
 REPO_URL = "https://github.com/sandlerleon/landmap-sensor-fusion"
 CODE_DOI = os.environ.get("LANDMAP_CODE_DOI")
 PREPRINT_DOI = os.environ.get("LANDMAP_PREPRINT_DOI")
 
 KLAB = {"logreg": "logistic regression", "rf": "random forest", "xgb": "XGBoost"}
 ARTICLE = {"logreg": "a", "rf": "a", "xgb": "an"}
+SNAME = {"mag": "magnetometer", "emi": "EMI", "gpr": "GPR", "therm": "thermal", "gas": "gas"}
 best = R["best_classifier"]
 pooled = R["pooled_baseline"][best]
 abl = R["ablation_pooled"]
@@ -29,8 +32,9 @@ nir = R["nir_augmentation_pooled"]
 sv = E["sensor_value"]
 boundary = RB["voi_zero_boundary"]["combined_severity_fraction"]
 
-TITLE = ("Uncertainty-Aware Multimodal Sensor Fusion for Economic Prioritization of "
-         "Landfill Mining: A Simulation-Based Evaluation")
+TITLE = ("From Classification Accuracy to Decision Value: Multimodal Sensor Fusion for "
+         "Economic Prioritization of Landfill Mining")
+SUBTITLE = "A Simulation-Based Value-of-Information Analysis"
 
 doc = Document()
 st = doc.styles["Normal"]
@@ -52,8 +56,8 @@ P("", after=4)
 P("The Editor-in-Chief", after=0)
 P("Environmental Monitoring and Assessment", after=12)
 P("Dear Editor,")
-P("I am submitting the manuscript \u201c%s\u201d for consideration as an original research "
-  "article." % TITLE)
+P("I am submitting the manuscript \u201c%s: %s\u201d for consideration as an original "
+  "research article." % (TITLE, SUBTITLE))
 P("Landfill-mining projects are approved or shelved on incomplete information about "
   "underground composition, and systematic assessments of European scenarios have found "
   "the majority of them unprofitable, driven largely by uncertainty that in principle could "
@@ -78,20 +82,24 @@ for t in [
     "Sensor ablation and economic value-of-information analysis disagree about which channel "
     "matters most: removing ground-penetrating radar costs the most classification "
     "performance (macro-F1 %.3f \u2192 %.3f), but only the magnetometer shows a reliably "
-    "positive incremental value of information (positive in %.0f%% of independent surveys); "
-    "the other four channels are statistically indistinguishable from zero economic value "
-    "despite mattering for classification. Adding a near-infrared channel raises plastic F1 "
-    "from %.2f to %.2f but leaves VOI statistically unchanged."
+    "positive incremental value of information at baseline economics (positive in %.0f%% of "
+    "independent surveys). The paper's central finding is that this ranking is not fixed: a "
+    "grid over ordinary metal/plastic price fluctuation never changed the winner, but "
+    "deliberately extreme, still economically nameable site archetypes (polymer-rich, C&D-"
+    "rich, glass-rich) shifted the top sensor to GPR or EMI \u2014 sensor value is "
+    "conditional on site composition and economics, not a fixed property of the sensing "
+    "architecture, and classifier choice for the economic layer (random forest vs. raw or "
+    "calibrated XGBoost) was tested and found not to matter. Adding a near-infrared channel "
+    "raises plastic F1 from %.2f to %.2f but leaves VOI statistically unchanged."
     % (abl["all"]["macro_f1"], abl["all_minus_gpr"]["macro_f1"], sv["mag"]["p_positive"] * 100,
        nir["baseline"]["per_class_f1"]["plastic"], nir["plus_nir"]["per_class_f1"]["plastic"]),
-    "Under baseline economic assumptions the survey is worth its assumed cost (median VOI "
-    "$%.0f, break-even survey cost $%.0f), but a synthetic-to-real degradation sweep across "
-    "five stressors (sensor noise, dropout, GPR attenuation, moisture attenuation, material-"
-    "signature overlap) locates the point at which this reverses at %.0f%% of the way from "
-    "baseline to the most severe combined scenario tested \u2014 reported as a falsification "
-    "boundary rather than a single point estimate."
-    % (E["voi_averaged"]["median"], E["breakeven_survey_cost_usd_averaged"]["median"],
-       boundary * 100),
+    "Across the baseline synthetic scenarios the simulated survey has positive median VOI "
+    "(median $%.0f, break-even survey cost $%.0f); a two-dimensional map over sensing-"
+    "quality and economic-adversity severity shows this conclusion is considerably more "
+    "sensitive to adverse secondary-material markets than to sensor degradation itself, "
+    "and gives a model-specific decision-viability boundary rather than a single "
+    "degradation percentage."
+    % (E["voi_averaged"]["median"], E["breakeven_survey_cost_usd_averaged"]["median"]),
     "The gas-hazard classifier reaches ROC-AUC %.2f and %.0f%% recall at a safety-oriented "
     "operating point, and the manuscript closes with a field validation and falsification "
     "plan giving pre-specified acceptance criteria for every prediction."

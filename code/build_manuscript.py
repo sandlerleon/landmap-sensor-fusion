@@ -23,6 +23,11 @@ R = json.load(io.open(os.path.join(HERE, "landmap_model_results.json"), encoding
 E = json.load(io.open(os.path.join(HERE, "landmap_econ_results.json"), encoding="utf-8"))
 RB = json.load(io.open(os.path.join(HERE, "landmap_robustness_results.json"), encoding="utf-8"))
 DOIREFS = json.load(io.open(os.path.join(HERE, "_refs.json"), encoding="utf-8"))
+HX = json.load(io.open(os.path.join(HERE, "landmap_hazard_extra_results.json"), encoding="utf-8"))
+CV = json.load(io.open(os.path.join(HERE, "landmap_calib_voi_results.json"), encoding="utf-8"))
+SM = json.load(io.open(os.path.join(HERE, "landmap_sensor_map_results.json"), encoding="utf-8"))
+SME = json.load(io.open(os.path.join(HERE, "landmap_sensor_map_extreme_results.json"), encoding="utf-8"))
+VM = json.load(io.open(os.path.join(HERE, "landmap_voi_map_results.json"), encoding="utf-8"))
 
 LS_RESPONSE = LS.RESPONSE
 LS_ALL_SENSORS = LS.ALL_SENSORS
@@ -34,8 +39,9 @@ ECON_REC = ECON["recovery_fraction"]
 REPO_URL = "https://github.com/sandlerleon/landmap-sensor-fusion"
 CODE_DOI = os.environ.get("LANDMAP_CODE_DOI")
 
-TITLE = ("Uncertainty-Aware Multimodal Sensor Fusion for Economic Prioritization of "
-         "Landfill Mining: A Simulation-Based Evaluation")
+TITLE = ("From Classification Accuracy to Decision Value: Multimodal Sensor Fusion for "
+         "Economic Prioritization of Landfill Mining")
+SUBTITLE = "A Simulation-Based Value-of-Information Analysis"
 
 # ------------------------------------------------------------------ document
 doc = Document()
@@ -160,6 +166,15 @@ nirvoi = E["nir_delta_voi"]
 cd_ = RB["combined_degradation"]
 ov = RB["sweeps"]["overlap_shrink"]
 boundary = RB["voi_zero_boundary"]
+hazx = HX
+
+_extreme_winners = sorted(set(v["winner"] for v in SME.values()))
+_grid_winners = sorted(set(cell["winner"] for row in SM["grid"] for cell in row))
+SNAME = {"mag": "magnetometer", "emi": "EMI", "gpr": "GPR", "therm": "thermal", "gas": "gas"}
+EXTREME_SUMMARY = ("robust to price fluctuation but not to site composition: the magnetometer "
+                   "led at every tested metal/plastic price combination, yet a deliberately "
+                   "polymer-, debris-, or glass-rich site archetype shifted the top sensor to "
+                   "%s" % " or ".join(sorted(set(SNAME[w] for w in _extreme_winners if w != "mag"))))
 
 
 def pf1(d, cls):
@@ -169,6 +184,8 @@ def pf1(d, cls):
 # ==================================================================== FRONT
 p = doc.add_paragraph(); p.paragraph_format.line_spacing = 1.3
 r = p.add_run(TITLE); r.bold = True; r.font.size = Pt(14)
+p2 = doc.add_paragraph(); p2.paragraph_format.line_spacing = 1.2
+r2 = p2.add_run(SUBTITLE); r2.italic = True; r2.font.size = Pt(12)
 Pp("Leon Sandler", indent=False, spacing=1.2)
 Pp("Independent Researcher, Northbrook, Illinois, USA", indent=False, size=10, spacing=1.2)
 Pp("E-mail: sandler.leon@gmail.com \u00b7 ORCID: 0009-0007-4584-808X", indent=False, size=10, spacing=1.2)
@@ -188,28 +205,36 @@ ABSTRACT = (
     "against %.2f (plastic) and %.2f (glass). Random per-cell splitting gave a small, "
     "statistically insignificant difference (95%% CI including zero) relative to spatial "
     "blocking in this configuration, and held-out accuracy did not decay with distance to "
-    "the nearest training cell, a finding we report as evidence against leakage in this "
-    "specific setting rather than as a general claim. Sensor ablation shows ground-"
+    "the nearest training cell; we found no detectable performance inflation attributable "
+    "to the tested spatial-proximity mechanism in this specific setting, which is not the "
+    "same as a general claim that spatial blocking is unnecessary. Sensor ablation shows "
+    "ground-"
     "penetrating radar contributes most to classification (macro-F1 falls by %.3f when "
     "removed), but an economic value-of-information analysis shows only the magnetometer "
     "reliably increases the excavation decision's expected value; classification "
     "improvements from the other channels did not translate into decision value in this "
     "model. Adding a near-infrared channel raises plastic F1 from %.2f to %.2f but leaves "
     "VOI statistically unchanged, because low-value materials contribute little to the "
-    "economic layer regardless of classification accuracy. The gas-hazard classifier "
-    "reaches ROC-AUC %.2f and %.0f%% recall at a safety-oriented threshold. Under baseline "
-    "assumptions the median VOI is positive (P(VOI>0) = %.2f) and the break-even survey "
-    "cost is $%.0f; a combined synthetic-to-real degradation sweep shows this conclusion "
-    "reverses once sensor noise, dropout and material-signature overlap exceed roughly "
-    "%.0f%% of the degradation range explored. All results are model predictions, and a "
-    "field validation and falsification plan with acceptance criteria is given."
+    "economic layer regardless of classification accuracy. In a synthetic hazard-detection "
+    "test whose ground truth and sensor reading share the same underlying generative model "
+    "— an upper-bound test, not an independent validation — the gas-hazard "
+    "classifier reaches ROC-AUC %.2f and %.0f%% recall at a safety-oriented operating point, "
+    "though at that operating point only %.0f%% of cells flagged as hazardous are true "
+    "positives. Across the baseline synthetic scenarios and stated economic parameter "
+    "distributions, the simulated survey has positive median VOI (P(VOI>0) = %.2f) and a "
+    "break-even survey cost of $%.0f; a two-dimensional map over sensing-quality and "
+    "economic-adversity severity locates a model-specific VOI-zero boundary rather than a "
+    "single degradation threshold, and a further test across deliberately extreme economic "
+    "regimes finds the magnetometer's economic advantage %s. All results are model "
+    "predictions, and a field validation and falsification plan with acceptance criteria is "
+    "given."
     % (19, C("laner2019"), ARTICLE[best], KLAB[best], pf1(pooled, "metal"), pf1(pooled, "organic"),
        pf1(pooled, "cd"), pf1(pooled, "plastic"), pf1(pooled, "glass"),
        abl["all"]["macro_f1"] - abl["all_minus_gpr"]["macro_f1"],
        pf1(nir["baseline"], "plastic"), pf1(nir["plus_nir"], "plastic"),
-       haz["auc"]["mean"], haz["recall"]["mean"] * 100,
+       haz["auc"]["mean"], haz["recall"]["mean"] * 100, hazx["pooled_precision"] * 100,
        econ["voi_averaged"]["p_positive"], econ["breakeven_survey_cost_usd_averaged"]["median"],
-       boundary["combined_severity_fraction"] * 100))
+       EXTREME_SUMMARY))
 Pp(ABSTRACT, indent=False)
 Pp("Keywords: landfill mining; multimodal sensor fusion; spatial cross-validation; value of "
    "information; random forest; XGBoost; probability calibration; uncertainty quantification",
@@ -310,8 +335,8 @@ H2("2.6 Research gap")
 Pp("No prior study, to our knowledge, evaluates an integrated multimodal-sensing-to-"
    "excavation-decision pipeline for landfill mining under a spatially valid protocol, with "
    "sensor value measured economically rather than only by classification accuracy, and with "
-   "an explicit synthetic-to-real falsification boundary. That is what this paper "
-   "contributes.")
+   "an explicit, model-specific decision-viability boundary rather than a single robustness "
+   "point estimate. That is what this paper contributes.")
 
 # ==================================================================== 3
 H("3 LAND-MAP framework")
@@ -401,12 +426,15 @@ Pp("Three classifiers are compared: logistic regression, random forest %s, and X
    "probabilities directly and a poorly calibrated \u201c72%%\u201d is not the same as an "
    "empirically reliable one." % (C("breiman2001"), C("chen2016"), C("niculescu2005")))
 H2("4.4 Sensor ablation and NIR augmentation")
-Pp("Each of the five non-optical channels is removed in turn and the best-performing "
+Pp("Each of the five material-response channels is removed in turn and the best-performing "
    "classifier retrained, isolating each channel's contribution to pooled macro-F1. A "
-   "seventh, optical/near-infrared channel, motivated by the plastic/glass confusion this "
+   "sixth, optical/near-infrared channel, motivated by the plastic/glass confusion this "
    "paper's synthetic physics reproduces, is added to test whether it repairs that specific "
-   "limitation; it is modelled as a surface-only channel (rapid depth attenuation) with "
-   "distinct plastic and glass responses.", indent=False)
+   "limitation under the assumed NIR response coefficients (Table 1); it is modelled as a "
+   "surface-only channel (rapid depth attenuation) with distinct plastic and glass "
+   "responses. Because those coefficients are assumptions rather than measured spectra, "
+   "this tests a hypothetical NIR channel with the stated response structure, not a claim "
+   "about any specific real instrument (Section 5.5).", indent=False)
 H2("4.5 Economic model and value of information")
 Pp("For material class c the expected net value of excavating cell i is")
 EQ("v_i = \u2211_c P(c\u2223x_i)\u00b7m_i\u00b7\u03c1_c\u00b7\u03c0_c \u2212 m_i(k_{ex} + k_{pr})")
@@ -449,7 +477,9 @@ Pp("The largest acknowledged risk in this design is that real, weathered, hetero
    "driven GPR attenuation specifically, and material-signature overlap (each material's "
    "response shrunk toward the six-class mean). Each axis is swept individually and then "
    "combined, and the combined sweep is searched to locate the point at which mean VOI "
-   "crosses zero \u2014 the falsification boundary this paper reports rather than assumes.",
+   "crosses zero, then extend the same logic to two dimensions with an independent "
+   "economic-adversity axis (Section 5.11) \u2014 a model-specific VOI-zero boundary this "
+   "paper reports rather than assumes.",
    indent=False)
 
 # ==================================================================== 5
@@ -463,7 +493,7 @@ TBL(["Class"] + [KHEAD[k] for k in KINDS],
 CAP("Table 3. Pooled per-class F1 under the spatially blocked protocol, three classifiers, "
     "%d pooled test cells across %d repeats." % (R["pooled_baseline"][best]["n_pooled"], R["n_repeats"]))
 FIG("figure3_per_class_f1")
-CAP("Fig. 3 Per-class F1 by classifier, five-sensor baseline, spatial holdout.")
+CAP("Fig. 3 Per-class F1 by classifier, five-channel material-response baseline, spatial holdout.")
 Pp("Metal (F1 %.2f\u2013%.2f across classifiers) and organic material (%.2f\u2013%.2f) are "
    "classified reliably, and construction and demolition debris reaches %.2f\u2013%.2f once "
    "its magnetometer/EMI signature (motivated by embedded rebar and metal fragments) is "
@@ -538,11 +568,13 @@ Pp("The economic picture is different, and this divergence is the paper's centra
    % (sv["mag"]["incremental_voi_mean"], sv["mag"]["p_positive"] * 100,
       sv["emi"]["p_positive"] * 100, sv["gpr"]["p_positive"] * 100,
       sv["therm"]["p_positive"] * 100, sv["gas"]["p_positive"] * 100))
-H2("5.5 NIR augmentation")
+H2("5.5 Hypothetical optical/NIR augmentation")
 FIG("figure6_nir_augmentation")
-CAP("Fig. 6 Per-class pooled F1, five-sensor baseline versus baseline plus a near-infrared/"
-    "optical channel.")
-Pp("Adding the proposed NIR channel raises plastic F1 from %.2f to %.2f and macro-F1 from "
+CAP("Fig. 6 Per-class pooled F1, five-channel material-response baseline versus baseline plus a "
+    "hypothetical near-infrared/optical channel.")
+Pp("Under the assumed NIR response coefficients (Table 1) — a hypothetical surface "
+   "optical channel with plastic- and glass-distinguishing response, not spectra from any "
+   "specific real instrument — adding it raises plastic F1 from %.2f to %.2f and macro-F1 from "
    "%.3f to %.3f, but glass F1 moves from %.2f to %.2f \u2014 essentially unchanged, and in "
    "this simulation slightly down, because the added channel and the classifier's rebalancing "
    "across six classes do not uniformly benefit every class. The economic effect is smaller "
@@ -571,9 +603,18 @@ Pp("Logistic regression is the best calibrated of the three classifiers (Brier %
    "only the predicted class %s. The gas-hazard classifier reaches ROC-AUC %.3f "
    "(SD %.3f) and, at an operating point chosen to guarantee at least 95%% recall, achieves "
    "%.1f%% recall (SD %.3f) in held-out testing, approaching the 97%%/0.97 figures the "
-   "source proposal reported from its own Stage 1 testing."
+   "source proposal reported from its own Stage 1 testing. Recall alone overstates this "
+   "operating point's usefulness: a detector can reach 100%% recall by flagging nearly "
+   "everything. Pooled across the same %d repeats, precision at this operating point is "
+   "only %.0f%% and specificity %.0f%%, meaning about %.0f%% of cells are flagged as "
+   "hazardous and roughly two in five flagged cells are false positives (PR-AUC %.3f); the "
+   "operating point is deliberately chosen to guarantee recall for a safety application, "
+   "and it does so, but at a real, quantified precision cost that the recall figure alone "
+   "does not convey."
    % (calib["logreg"]["mean"], calib["rf"]["mean"], calib["xgb"]["mean"], C("niculescu2005"),
-      haz["auc"]["mean"], haz["auc"]["sd"], haz["recall"]["mean"] * 100, haz["recall"]["sd"]))
+      haz["auc"]["mean"], haz["auc"]["sd"], haz["recall"]["mean"] * 100, haz["recall"]["sd"],
+      hazx["n_repeats_used"], hazx["pooled_precision"] * 100, hazx["pooled_specificity"] * 100,
+      hazx["metrics"]["frac_flagged"]["mean"] * 100, hazx["metrics"]["pr_auc"]["mean"]))
 H2("5.7 Economic prioritisation and value of information")
 FIG("figure8_voi_breakeven")
 CAP("Fig. 8 (a) Monte Carlo distribution of Value of Information for one representative "
@@ -589,6 +630,18 @@ Pp("For the representative survey used throughout Sections 5.3\u20135.6, median 
       econ["voi_example"]["p_positive"] * 100, E["n_rep_econ"],
       econ["voi_averaged"]["mean"], econ["voi_averaged"]["median"], econ["voi_averaged"]["p_positive"] * 100,
       econ["breakeven_survey_cost_usd_averaged"]["median"]))
+Pp("Section 5.8's baseline scenario reports a somewhat higher mean VOI ($%.0f) for what is "
+   "nominally the same untouched baseline. The two estimates are not expected to coincide: "
+   "the robustness sweep averages %d survey realisations at %d Monte Carlo draws each per "
+   "scenario, chosen for speed across %d scenarios, against %d realisations at %d draws "
+   "here; Section 5.9 confirms the classifier itself (random forest throughout the economic "
+   "layer, versus XGBoost in the robustness sweep before this revision) changes mean VOI by "
+   "only about $%.0f, so the gap is sampling noise in the repeat-average estimate, not a "
+   "protocol inconsistency — both are unbiased estimates of the same baseline quantity, "
+   "and $%.0f falls within their combined sampling uncertainty."
+   % (RB["baseline"]["voi_mean"], RB["n_rep"], 1500, 33,
+      E["n_rep_econ"], E["n_mc"], abs(CV["voi_diff_xgb_minus_rf"]["mean"]),
+      abs(RB["baseline"]["voi_mean"] - econ["voi_averaged"]["mean"])))
 H2("5.8 Synthetic-to-real robustness")
 AXIS_LABEL = {"noise_mult": "Sensor noise (× baseline SD)", "dropout_mult": "Dropout probability (× baseline)",
               "gpr_atten_mult": "GPR depth attenuation (× baseline)",
@@ -620,9 +673,11 @@ Pp("Individually, the five degradation axes are not equally damaging (Table 4). 
    "baseline to $%.0f, $%.0f, $%.0f and $%.0f across increasing combined severity, turning "
    "negative before the most severe combined scenario tested. A finer search along the same "
    "combined axis locates the point at which mean VOI changes sign at %.0f%% of the way from "
-   "baseline to the most severe scenario evaluated \u2014 this is the falsification boundary "
-   "for the economic claim, not merely a qualitative caveat: beyond it, the model predicts "
-   "that surveying is not worth its cost."
+   "baseline to the most severe scenario evaluated \u2014 a model-specific VOI-zero boundary, "
+   "not a general claim about when surveying stops being worthwhile: beyond it, this "
+   "simulation's economic prediction changes sign. Section 5.11 replaces this "
+   "one-dimensional severity fraction with an explicit two-dimensional decision-viability "
+   "map giving the boundary in terms of the underlying degradation parameters."
    % (RB["sweeps"]["noise_mult"][0]["macro_f1_mean"], RB["sweeps"]["noise_mult"][-1]["macro_f1_mean"],
       RB["sweeps"]["noise_mult"][0]["voi_mean"], RB["sweeps"]["noise_mult"][-1]["voi_mean"],
       RB["sweeps"]["overlap_shrink"][-1]["macro_f1_mean"], RB["sweeps"]["overlap_shrink"][-1]["voi_mean"],
@@ -630,17 +685,115 @@ Pp("Individually, the five degradation axes are not equally damaging (Table 4). 
       RB["sweeps"]["gpr_atten_mult"][-1]["voi_mean"], RB["sweeps"]["moisture_mult"][-1]["voi_mean"],
       cd_[0]["voi_mean"], cd_[1]["voi_mean"], cd_[2]["voi_mean"], cd_[3]["voi_mean"],
       cd_[4]["voi_mean"], boundary["combined_severity_fraction"] * 100))
+_mid = boundary["combined_severity_fraction"]
+_bnd = dict(noise_mult=1.0 + _mid * 1.5, dropout_mult=1.0 + _mid * 3.0, gpr_atten_mult=1.0 + _mid * 1.5,
+           moisture_mult=1.0 + _mid * 1.5, overlap_shrink=_mid * 0.6)
+_sev = dict(noise_mult=2.5, dropout_mult=4.0, gpr_atten_mult=2.5, moisture_mult=2.5, overlap_shrink=0.6)
+TBL(["Degradation axis", "Baseline", "Value at VOI = 0", "Most severe scenario"],
+    [[AXIS_LABEL[axis].split(" (")[0], "1.0" if axis != "overlap_shrink" else "0.0",
+      "%.2f" % _bnd[axis], "%.1f" % _sev[axis]]
+     for axis in ["noise_mult", "dropout_mult", "gpr_atten_mult", "moisture_mult", "overlap_shrink"]],
+    widths=[2.1, 0.85, 1.1, 1.1])
+CAP("Table 5. The combined-degradation VOI-zero boundary (%.1f%% of the way from baseline to "
+    "the most severe scenario, Fig. 9a) expressed in the underlying degradation parameters "
+    "used by the combined-severity sweep, rather than as a bare percentage. Sensor noise "
+    "and dropout are expressed as multiples of their baseline standard deviation/probability; "
+    "GPR and moisture attenuation as multiples of their baseline attenuation coefficient; "
+    "overlap as the fraction each material's response is shrunk toward the six-class mean."
+    % (_mid * 100))
+
+H2("5.9 Classifier choice and probability calibration for the economic layer")
+Pp("The economic layer (Sections 5.4 and 5.7) uses random forest rather than XGBoost, the "
+   "classifier with the highest raw macro-F1 (Section 5.1), because XGBoost's probabilities "
+   "are the least well calibrated of the three (Brier %.3f vs. %.3f for random forest; "
+   "Section 5.6), and VOI consumes predicted probabilities directly rather than only the "
+   "predicted class. This choice is tested, not merely asserted: averaged over %d "
+   "independent surveys, mean VOI is $%.0f with random forest, $%.0f with raw XGBoost "
+   "(difference $%.0f) and $%.0f with Platt-calibrated XGBoost (sigmoid calibration, "
+   "%d-fold; Brier improves to %.3f). All three are within normal sampling variation of one "
+   "another and all give P(VOI>0) ≥ %.0f%%: classifier choice for the economic layer "
+   "does not materially change the economic conclusion in this simulation, which is itself "
+   "informative — it means the classifier-calibration concern raised by Section 5.6's "
+   "Brier-score gap, while real, is not what is driving this paper's headline VOI estimate."
+   % (R["calibration"]["xgb"]["mean"], R["calibration"]["rf"]["mean"], CV["n_rep"],
+      CV["voi"]["rf"]["mean"], CV["voi"]["xgb"]["mean"], CV["voi_diff_xgb_minus_rf"]["mean"],
+      CV["voi"]["xgb_calibrated"]["mean"], 3, CV["brier"]["xgb_calibrated"]["mean"],
+      min(CV["voi"][k]["p_positive"] for k in ("rf", "xgb", "xgb_calibrated")) * 100))
+
+H2("5.10 Sensor selection depends on site composition, not price alone")
+FIG("figure10_sensor_selection")
+CAP("Fig. 10 Incremental VOI (mean over %d repeats) for each of the five channels, at "
+    "baseline economics and four deliberately extreme site archetypes: metal devalued to "
+    "%.0f%% of baseline with no other change; the same metal devaluation plus plastic price "
+    "and recovery fraction raised %.1fx/%.1fx (polymer-rich); plus C&D price/recovery raised "
+    "%.1fx/%.1fx (C&D-rich); plus glass price/recovery raised %.1fx/%.1fx (glass-rich)."
+    % (15, SME["polymer_max"]["params"]["metal_mult"] * 100,
+       SME["polymer_max"]["params"]["challenger_price_mult"], SME["polymer_max"]["params"]["challenger_rec_mult"],
+       SME["cd_max"]["params"]["challenger_price_mult"], SME["cd_max"]["params"]["challenger_rec_mult"],
+       SME["glass_max"]["params"]["challenger_price_mult"], SME["glass_max"]["params"]["challenger_rec_mult"]))
+Pp("A grid over metal price (%.1f–%.1fx baseline) crossed with plastic price "
+   "(%.1f–%.1fx baseline), %d×%d points, %d repeats per point, never changed the "
+   "winner away from the magnetometer (Fig. 5b's single-point result therefore generalises "
+   "across ordinary price fluctuation, not just the one price table in Table 2). But "
+   "deliberately extreme, still economically nameable site archetypes do flip the ranking: "
+   "starving metal's value alone collapses every sensor's incremental VOI toward zero (no "
+   "single channel matters when no material is worth much); combined with a hypothetical "
+   "high-value, high-recovery plastics market, GPR becomes most valuable ($%.0f), ahead of "
+   "EMI ($%.0f) and gas ($%.0f); with a high-value C&D market, GPR again leads ($%.0f); with "
+   "a high-value glass market, EMI leads ($%.0f). The classification-optimal sensor (GPR, "
+   "Section 5.3) and the economic-optimal sensor are therefore not fixed properties of the "
+   "sensing architecture: they are conditional on the site's resource-value structure, and "
+   "the general claim this paper supports is that sensor suites should be selected against "
+   "site-specific decision value, not against a generic classification benchmark or a "
+   "single assumed price table."
+   % (SM["metal_mult"][0], SM["metal_mult"][-1], SM["plastic_mult"][0], SM["plastic_mult"][-1],
+      len(SM["metal_mult"]), len(SM["plastic_mult"]), SM["n_rep"],
+      SME["polymer_max"]["incremental_voi_mean"]["gpr"], SME["polymer_max"]["incremental_voi_mean"]["emi"],
+      SME["polymer_max"]["incremental_voi_mean"]["gas"], SME["cd_max"]["incremental_voi_mean"]["gpr"],
+      SME["glass_max"]["incremental_voi_mean"]["emi"]))
+
+H2("5.11 A two-dimensional decision-viability map")
+FIG("figure11_voi_viability_map")
+CAP("Fig. 11 Mean VOI as a function of sensing-degradation severity (alpha, the same "
+    "combined parametrisation as Fig. 9a) and economic-adversity severity (beta: secondary-"
+    "material prices shrunk toward zero and survey cost increased), %d×%d grid, %d "
+    "repeats per point, with the VOI = 0 contour drawn in black."
+    % (len(VM["alpha_grid"]), len(VM["beta_grid"]), VM["n_rep"]))
+Pp("The one-dimensional combined-degradation sweep (Fig. 9a, Table 5) is the beta = 0 "
+   "slice of this surface. Moving along that slice alone, the VOI-zero boundary sits at "
+   "%.0f%% combined severity; but the boundary is far more sensitive to economic adversity "
+   "than to sensing degradation: at alpha = 0 (no added sensing degradation at all), mean "
+   "VOI already crosses zero at beta ≈ %.2f, and at alpha = 1 (the most severe sensing "
+   "degradation tested) it crosses at beta ≈ %.2f — a comparatively small shift. "
+   "The decision-viability region ℒ₊ = {(α,β): VOI(α,β) > 0} in "
+   "this simulation is therefore bounded mainly by whether secondary-material markets and "
+   "survey costs stay favourable, not by how well the sensors themselves perform; a site "
+   "operator worried about the economics of this approach should stress-test market "
+   "assumptions before stress-testing sensor specifications."
+   % (boundary["combined_severity_fraction"] * 100,
+      [z["beta_at_voi_zero"] for z in VM["zero_crossings"] if z["alpha"] == 0.0][0],
+      [z["beta_at_voi_zero"] for z in VM["zero_crossings"] if z["alpha"] == 1.0][0]))
 
 # ==================================================================== 6
 H("6 Discussion")
-H2("6.1 Classification accuracy is not the right sensor-value metric")
+H2("6.1 Classification accuracy is not the right sensor-value metric, and the right sensor "
+   "is not fixed")
 Pp("Section 5.4's central finding \u2014 that GPR is the strongest classification "
-   "contributor but only the magnetometer shows reliable economic value \u2014 argues "
-   "against sizing a multimodal survey by F1 or macro-F1 alone. A sensor package for this "
-   "application should be chosen, and priced, against its contribution to the value-of-"
-   "information calculation for the specific material-price structure of the site, not "
-   "against a generic classification benchmark. This is a design implication the original "
-   "proposal's Stage 1 testing, reporting only F1 scores, could not have surfaced.")
+   "contributor but only the magnetometer shows reliable economic value at baseline "
+   "economics \u2014 argues against sizing a multimodal survey by F1 or macro-F1 alone. "
+   "Section 5.10 goes further: the magnetometer's advantage survives ordinary price "
+   "fluctuation but not deliberate changes in what the site actually contains, and GPR or "
+   "EMI become the economically optimal channel under polymer-rich, debris-rich or "
+   "glass-rich archetypes. The general, falsifiable claim this paper supports is therefore "
+   "that predictive utility is not decision utility, and that the economically optimal "
+   "sensor is a function of site composition, market economics and sensor uncertainty "
+   "jointly \u2014 not \u201cmagnetometers are economically most useful,\u201d which is only "
+   "the baseline-economics special case. A sensor package for "
+   "this application should be chosen, and priced, against its contribution to the value-"
+   "of-information calculation for the specific material-price structure and composition of "
+   "the site, not against a generic classification benchmark or a single assumed price "
+   "table. This is a design implication the original proposal's Stage 1 testing, reporting "
+   "only F1 scores under one assumed economic table, could not have surfaced.")
 H2("6.2 What the spatial-validation null result does and does not show")
 Pp("We tested, rather than assumed, whether random splitting overestimates performance for "
    "this system and found no detectable effect (Section 5.2). This should not be read as "
@@ -689,24 +842,57 @@ Pp("Every quantitative result in this paper is a prediction from a synthetic, ph
    "heterogeneous stratigraphy. No field, laboratory, or test-bed data were used anywhere "
    "in this study." % (boundary["combined_severity_fraction"] * 100))
 
+H2("6.7 Load-bearing assumptions")
+Pp("Four assumptions carry most of the paper's conclusions, and different conclusions lean "
+   "on different subsets of them, so a failure in one need not undermine the others.",
+   indent=False)
+for lbl, txt in [
+    ("A1 — synthetic sensor signatures approximate real landfill sensor separability.",
+     "Load-bearing for every classification result (Sections 5.1–5.3, 5.5): the "
+     "metal/organic/C&D-high, plastic/glass-low F1 pattern and the GPR-dominant ablation "
+     "ranking all depend on it. If real materials are less separable than modelled, "
+     "classification F1 (and everything downstream of it) will be lower than reported."),
+    ("A2 — the material-price/recovery-fraction distributions represent the intended "
+     "decision environment.",
+     "Load-bearing for every economic result (Sections 5.4, 5.7–5.11): the "
+     "magnetometer's baseline VOI advantage, the break-even survey cost and the decision-"
+     "viability map's beta axis all depend on it directly. Section 5.10 shows this "
+     "dependence explicitly by varying it."),
+    ("A3 — the simulator's spatial structure approximates real landfill heterogeneity.",
+     "Load-bearing mainly for the spatial-vs-random null result (Section 5.2) and the "
+     "distance-decay diagnostic; a real site with different spatial correlation in its "
+     "material field or sensor noise could show a leakage gap this simulation did not."),
+    ("A4 — predicted probabilities are well enough calibrated for expected-value "
+     "arithmetic.",
+     "Load-bearing for the economic layer's use of predicted probabilities rather than "
+     "only predicted classes; Section 5.9 tests this directly and finds the VOI conclusion "
+     "is not sensitive to it in this simulation, which weakens, but does not remove, its "
+     "load-bearing status.")]:
+    p = doc.add_paragraph()
+    r = p.add_run(lbl); r.bold = True
+    p.add_run(" " + txt)
+
 # ==================================================================== 7
 H("7 Field validation and falsification plan")
 Pp("The predictions above can be confirmed or overturned by a staged test programme. Table "
-   "5 lists the measurements, the test bed, and the acceptance criterion for each.")
+   "6 lists the measurements, the test bed, and the acceptance criterion for each.")
 TBL(["Prediction", "Test", "Failure criterion"],
     [["Metal, organic, C&D F1 remain high on real waste", "Controlled test bed with known "
       "buried materials of each class", "F1 below the values in Table 3 by more than the "
       "robustness sweep's noise-equivalent margin (Fig. 9)"],
      ["Plastic/glass remain the hard classes without an optical channel",
-      "Same test bed, five-sensor configuration", "Unexpectedly high plastic/glass F1 would "
+      "Same test bed, five-channel configuration", "Unexpectedly high plastic/glass F1 would "
       "indicate the synthetic physics under-modelled real discriminability"],
-     ["NIR improves plastic but not necessarily glass", "Same test bed, six-sensor "
+     ["NIR improves plastic but not necessarily glass", "Same test bed, six-channel "
       "configuration with an added optical/NIR unit", "Glass F1 improves as much as plastic "
       "(would contradict Section 5.5); or neither improves (would contradict the source "
       "proposal's diagnosis)"],
-     ["GPR is the strongest classification contributor but not the strongest economic one",
-      "Ablation repeated on field data with the same economic model applied to real prices",
-      "GPR shows a reliably positive incremental VOI on real data"],
+     ["Sensor economic ranking follows site composition (Section 5.10), not a fixed "
+      "classification-accuracy ranking", "Ablation repeated on field data with the same "
+      "economic model applied to real prices and the site's actual measured composition",
+      "Field outcome inconsistent with simulation: GPR (or another non-magnetometer "
+      "channel) produces a reliably positive incremental VOI exceeding the magnetometer's "
+      "on a site the simulation's regime map would have classified as metal-dominant"],
      ["Spatial vs. random validation gap remains small", "Repeat the spatial-block/random-"
       "split comparison on field data", "A gap appears whose 95% CI excludes zero, "
       "indicating the null result of Section 5.2 does not transfer"],
@@ -717,8 +903,41 @@ TBL(["Prediction", "Test", "Failure criterion"],
       "measured excavation and processing costs and actual secondary-material prices",
       "Measured VOI is negative, or the break-even survey cost is below the field survey's "
       "actual cost"]], widths=[1.9, 2.2, 2.2])
-CAP("Table 5. Field validation and falsification criteria. A pilot at full site scale is "
+CAP("Table 6. Field validation and falsification criteria. A pilot at full site scale is "
     "proposed only after the controlled test-bed stage has been passed.")
+
+H2("7.1 Status of claims and assumptions")
+Pp("Every claim in this paper falls into one of four evidentiary categories; conflating "
+   "them is the most common way a simulation study overstates itself, so Table 7 states "
+   "each claim's status explicitly rather than leaving it implicit in the prose.",
+   indent=False)
+TBL(["Claim", "Status", "Evidence/basis"],
+    [["Random splitting inflates classification performance relative to spatial blocking",
+      "Not supported in simulation", "95% CI includes zero for LR/RF/XGB (Section 5.2)"],
+     ["GPR contributes most to macro-F1 among the five channels", "Simulation result",
+      "Leave-one-sensor-out ablation (Section 5.3)"],
+     ["Magnetometer contributes the most reliable incremental VOI at baseline economics",
+      "Simulation result, economics-conditional", "20-survey incremental-VOI analysis "
+      "(Section 5.4); shown conditional in Section 5.10"],
+     ["NIR improves plastic classification", "Conditional simulation result",
+      "Assumed synthetic NIR response coefficients (Table 1), not measured spectra"],
+     ["NIR increases VOI", "Not supported", "Incremental VOI statistically indistinguishable "
+      "from zero (Section 5.5)"],
+     ["Baseline median VOI is positive", "Model-dependent numerical result",
+      "Monte Carlo economic model, stated price/recovery/cost ranges (Section 5.7)"],
+     ["VOI becomes negative under severe combined degradation", "Model-dependent boundary",
+      "Robustness sweep and 2-D decision-viability map (Sections 5.8, 5.11)"],
+     ["The economically optimal sensor depends on site composition, not just price",
+      "Supported within tested simulation", "Economic-regime grid and extreme-archetype "
+      "test (Section 5.10)"],
+     ["Classifier choice for the economic layer does not change the VOI conclusion",
+      "Supported within tested simulation", "RF vs. raw/calibrated XGBoost comparison "
+      "(Section 5.9)"],
+     ["Field performance will match these simulated values", "Untested prediction",
+      "Requires the prospective validation in Table 6"]], widths=[2.3, 1.5, 2.4])
+CAP("Table 7. Status of claims and assumptions. “Simulation result” means the "
+    "finding is reproducible from the released code under the stated assumptions; it is not "
+    "thereby a claim about real landfills, which is what Table 6 exists to test.")
 
 # ==================================================================== 8
 H("8 Conclusions")
@@ -729,21 +948,26 @@ Pp("A multimodal sensor-fusion architecture for pre-excavation landfill characte
    "glass are not (F1 %.2f\u2013%.2f), for reasons of sensor physics rather than "
    "classifier choice. Random per-cell splitting did not detectably inflate performance "
    "relative to spatial blocking in this configuration, a tested and reported null result "
-   "rather than an assumption. Sensor ablation and economic value-of-information analysis "
-   "disagree about which channel matters most: GPR for classification, the magnetometer "
-   "for decision value, which argues for evaluating future sensor packages economically "
-   "rather than by classification accuracy alone. Under baseline assumptions the survey is "
-   "worth its assumed cost (median VOI $%.0f, break-even cost $%.0f), but this conclusion "
-   "reverses once combined sensor degradation exceeds about %.0f%% of the range explored, "
-   "and that boundary, not a single point estimate, is the paper's central economic claim. "
-   "All results are predictions, and the field validation plan specifies the measurements "
-   "that would confirm or overturn them."
+   "rather than an assumption. The paper's central finding is that predictive utility is "
+   "not decision utility and is not fixed: GPR maximises classification accuracy, but the "
+   "economically optimal sensor at baseline economics is the magnetometer, and it changes "
+   "to GPR or EMI under deliberately different, still economically nameable site "
+   "compositions (Section 5.10) \u2014 optimal sensor selection is a function of site "
+   "composition, market economics and sensor uncertainty, not a fixed property of the "
+   "sensing architecture. Across the baseline synthetic scenarios and stated economic "
+   "parameter distributions, the simulated survey has positive median VOI ($%.0f) and a "
+   "break-even cost of $%.0f, and this classifier-layer choice was itself tested and found "
+   "not to matter (Section 5.9). A two-dimensional decision-viability map (Section 5.11) "
+   "replaces the single combined-degradation boundary with a full VOI(\u03b1,\u03b2) surface, "
+   "showing the economic conclusion is considerably more sensitive to adverse market "
+   "conditions than to sensor degradation itself. All results are predictions, explicitly "
+   "labelled by evidentiary status in Table 7, and the field validation plan (Table 6) "
+   "specifies the measurements that would confirm or overturn them."
    % (max(R["pooled_baseline"][k]["per_class_f1"]["metal"] for k in KINDS),
       min(R["pooled_baseline"][k]["per_class_f1"]["glass"] for k in KINDS),
       max(R["pooled_baseline"][k]["per_class_f1"]["plastic"] for k in KINDS),
       econ["voi_averaged"]["median"],
-      econ["breakeven_survey_cost_usd_averaged"]["median"],
-      boundary["combined_severity_fraction"] * 100))
+      econ["breakeven_survey_cost_usd_averaged"]["median"]))
 
 # ==================================================================== DECLARATIONS
 H("Declarations")
@@ -759,9 +983,11 @@ for head, body in [
     ("Data availability", "No field data were generated. All model inputs are stated in the "
      "paper and the released configuration file."),
     ("Code availability", "The synthetic-survey generator, classification and economic models, "
-     "robustness sweep, and figure generators are openly available at %s%s. Running "
-     "landmap_model.py, landmap_econ.py, landmap_robustness.py and make_figures.py reproduces "
-     "every number and figure."
+     "robustness sweep, decision-viability and sensor-selection maps, and figure generators "
+     "are openly available at %s%s. Running landmap_model.py, landmap_econ.py, "
+     "landmap_robustness.py, landmap_hazard_extra.py, landmap_calib_voi.py, "
+     "landmap_sensor_map.py, landmap_sensor_map_extreme.py, landmap_voi_map.py and "
+     "make_figures.py reproduces every number and figure."
      % (REPO_URL, (" and archived at https://doi.org/%s" % CODE_DOI) if CODE_DOI else "")),
     ("Author contributions", "L.S. conceived the study, developed the models, performed the "
      "analysis and wrote the manuscript."),

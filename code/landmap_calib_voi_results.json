@@ -1,0 +1,65 @@
+{
+ "seed": 20260926,
+ "n_rep": 20,
+ "n_mc": 3000,
+ "brier": {
+  "rf": {
+   "mean": 0.059,
+   "sd": 0.0079
+  },
+  "xgb": {
+   "mean": 0.0696,
+   "sd": 0.012
+  },
+  "xgb_calibrated": {
+   "mean": 0.0657,
+   "sd": 0.0081
+  }
+ },
+ "voi": {
+  "rf": {
+   "mean": 729.16,
+   "median": 662.82,
+   "sd": 488.26,
+   "p_positive": 0.95
+  },
+  "xgb": {
+   "mean": 720.47,
+   "median": 647.11,
+   "sd": 469.69,
+   "p_positive": 0.95
+  },
+  "xgb_calibrated": {
+   "mean": 731.02,
+   "median": 661.75,
+   "sd": 467.55,
+   "p_positive": 1.0
+  }
+ },
+ "breakeven": {
+  "rf": {
+   "mean": 1530.12,
+   "median": 1450.6,
+   "sd": 490.96,
+   "p_positive": 1.0
+  },
+  "xgb": {
+   "mean": 1521.28,
+   "median": 1430.04,
+   "sd": 472.48,
+   "p_positive": 1.0
+  },
+  "xgb_calibrated": {
+   "mean": 1531.93,
+   "median": 1455.69,
+   "sd": 470.22,
+   "p_positive": 1.0
+  }
+ },
+ "voi_diff_xgb_minus_rf": {
+  "mean": -8.69
+ },
+ "voi_diff_xgbcal_minus_xgb": {
+  "mean": 10.55
+ }
+}

@@ -1,0 +1,51 @@
+{
+ "seed": 20260926,
+ "n_repeats_used": 40,
+ "metrics": {
+  "auc": {
+   "mean": 0.9369,
+   "sd": 0.0344,
+   "p05": 0.8834,
+   "p95": 0.9875
+  },
+  "pr_auc": {
+   "mean": 0.6965,
+   "sd": 0.1429,
+   "p05": 0.5113,
+   "p95": 0.9411
+  },
+  "recall": {
+   "mean": 1.0,
+   "sd": 0.0,
+   "p05": 1.0,
+   "p95": 1.0
+  },
+  "precision": {
+   "mean": 0.5984,
+   "sd": 0.1805,
+   "p05": 0.2156,
+   "p95": 0.814
+  },
+  "specificity": {
+   "mean": 0.8186,
+   "sd": 0.2163,
+   "p05": 0.4567,
+   "p95": 0.9434
+  },
+  "frac_flagged": {
+   "mean": 0.3191,
+   "sd": 0.1826,
+   "p05": 0.1875,
+   "p95": 0.6289
+  }
+ },
+ "pooled_confusion": {
+  "tp": 428,
+  "fp": 389,
+  "tn": 1743,
+  "fn": 0
+ },
+ "pooled_precision": 0.5238678090575275,
+ "pooled_specificity": 0.8175422138836773,
+ "note": "hazard ground truth is a logistic-thresholded function of the pre-noise gas signal from the same generative model as the deployed gas sensor; these metrics are an upper bound on independently ground-truthed performance."
+}
